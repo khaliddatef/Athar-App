@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:sanad/core/helper/spacing.dart';
 import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/core/widgets/app_button.dart';
-
 import 'package:sanad/core/widgets/loading_app.dart';
 import 'package:sanad/features/auth/login/view/widget/header_auth.dart';
 import 'package:sanad/features/auth/login/view/widget/text_form_field_custom.dart';
@@ -69,7 +68,7 @@ class _LoginBodyState extends State<LoginBody> {
                               },
                               controller: password,
                               obscureText: controller.isPasswordHidden,
-                              prefixIcon: IconButton(
+                              suffixIcon: IconButton(
                                 color: Colors.grey,
                                 onPressed: () => controller.isHidden(),
                                 icon: Icon(
@@ -85,7 +84,7 @@ class _LoginBodyState extends State<LoginBody> {
                         ),
                         const SizedBox(height: 15),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             TextButton(
                               style: TextButton.styleFrom(
@@ -102,9 +101,10 @@ class _LoginBodyState extends State<LoginBody> {
                           ],
                         ),
                         verticalSpace(context, height: 10),
-                        AppButton(text: 'تسجيل دخول',
-                        
-                              onPressed: () async {
+                        AppButton(
+                          text: 'تسجيل دخول',
+
+                          onPressed: () async {
                             if (!_formKey.currentState!.validate()) return;
                             setState(() {
                               isLoading = true;
@@ -113,11 +113,9 @@ class _LoginBodyState extends State<LoginBody> {
                             setState(() {
                               isLoading = false;
                             });
-                            context.go(AppRouter.khome);
+                            context.go(AppRouter.kmain);
                           },
-                        
                         ),
-                      
 
                         //  verticalSpace(context, height: 40),
                         // //  GoogleLoginButton(),
@@ -125,21 +123,23 @@ class _LoginBodyState extends State<LoginBody> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                              TextButton(
+                            const Text(
+                              'ليس لديك حساب ؟ ',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            horizontalSpace(context, width: 4),
+                            TextButton(
                               onPressed: () {
                                 context.go(AppRouter.kregister);
                               },
                               child: const Text(
                                 'سجل الأن',
-                                style: TextStyle(color: Colors.green ,fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            horizontalSpace(context, width: 5),
-                            const Text(
-                              'ليس لديك حساب ؟ ',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          
                           ],
                         ),
                       ],
@@ -151,8 +151,7 @@ class _LoginBodyState extends State<LoginBody> {
           ),
         ),
 
-        if (isLoading)
-        LoadingApp()
+        if (isLoading) LoadingApp(),
       ],
     );
   }

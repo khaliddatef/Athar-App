@@ -20,6 +20,8 @@ class _RegisterBodyState extends State<RegisterBody> {
   final TextEditingController email = TextEditingController();
   final TextEditingController national = TextEditingController();
   final TextEditingController phone = TextEditingController();
+  final TextEditingController age = TextEditingController();
+  final TextEditingController name = TextEditingController();
   final TextEditingController password = TextEditingController();
   final TextEditingController confirmPassword = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -43,7 +45,19 @@ class _RegisterBodyState extends State<RegisterBody> {
                     child: Column(
                       children: [
                         const HeaderAuth(),
-                        verticalSpace(context, height: 40),
+                        verticalSpace(context, height: 16),
+                        TextFormFieldCustom(
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'الرجاء إدخال الاسم';
+                            }
+                            return null;
+                          },
+                          controller: name,
+
+                          label: 'الاسم',
+                        ),
+                        verticalSpace(context, height: 10),
                         TextFormFieldCustom(
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -62,8 +76,19 @@ class _RegisterBodyState extends State<RegisterBody> {
 
                           label: 'الرقم القومي',
                         ),
+                        verticalSpace(context, height: 10),
+                        TextFormFieldCustom(
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'الرجاء إدخال العمر';
+                            }
+                            return null;
+                          },
+                          controller: age,
 
-                        verticalSpace(context, height: 16),
+                          label: 'العمر',
+                        ),
+                        verticalSpace(context, height: 10),
                         TextFormFieldCustom(
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -76,18 +101,18 @@ class _RegisterBodyState extends State<RegisterBody> {
 
                             if (!emailRegex.hasMatch(value.trim()) &&
                                 !phoneRegex.hasMatch(value.trim())) {
-                              return 'Enter a valid email or phone number';
+                              return 'من فضلك أدخل بريد إلكتروني صحيح ';
                             }
                             return null;
                           },
                           controller: email,
-                          prefixIcon: const Icon(
+                          suffixIcon: const Icon(
                             Icons.email_outlined,
                             color: Colors.grey,
                           ),
                           label: 'البريد الإلكتروني',
                         ),
-                        verticalSpace(context, height: 16),
+                        verticalSpace(context, height: 10),
                         TextFormFieldCustom(
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -96,13 +121,13 @@ class _RegisterBodyState extends State<RegisterBody> {
                             return null;
                           },
                           controller: phone,
-                          prefixIcon: const Icon(
+                          suffixIcon: const Icon(
                             Icons.phone,
                             color: Colors.grey,
                           ),
                           label: 'رقم الهاتف ',
                         ),
-                        verticalSpace(context, height: 16),
+                        verticalSpace(context, height: 10),
                         Consumer<LoginController>(
                           builder: (context, controller, child) {
                             return TextFormFieldCustom(
@@ -114,7 +139,7 @@ class _RegisterBodyState extends State<RegisterBody> {
                               },
                               controller: password,
                               obscureText: controller.isPasswordHidden,
-                              prefixIcon: IconButton(
+                              suffixIcon: IconButton(
                                 color: Colors.grey,
                                 onPressed: () => controller.isHidden(),
                                 icon: Icon(
@@ -134,7 +159,7 @@ class _RegisterBodyState extends State<RegisterBody> {
                             return TextFormFieldCustom(
                               controller: confirmPassword,
                               obscureText: controller.isPasswordHidden,
-                              prefixIcon: IconButton(
+                              suffixIcon: IconButton(
                                 color: Colors.grey,
                                 onPressed: () => controller.isHidden(),
                                 icon: Icon(
@@ -157,9 +182,10 @@ class _RegisterBodyState extends State<RegisterBody> {
                           },
                         ),
                         verticalSpace(context, height: 10),
-  AppButton(text: 'انشاء حساب',
-                        
-                              onPressed: () async {
+                        AppButton(
+                          text: 'انشاء حساب',
+
+                          onPressed: () async {
                             if (!_formKey.currentState!.validate()) return;
                             setState(() {
                               isLoading = true;
@@ -168,33 +194,33 @@ class _RegisterBodyState extends State<RegisterBody> {
                             setState(() {
                               isLoading = false;
                             });
-                            context.go(AppRouter.khome);
+                            context.go(AppRouter.kmain);
                           },
-                        
                         ),
-                      
-                        //  verticalSpace(context, height: 20),
+
+                        verticalSpace(context, height: 10),
                         // //  GoogleLoginButton(),
                         //  verticalSpace(context, height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                              TextButton(
+                            const Text(
+                              'لديك حساب بالفعل؟',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            horizontalSpace(context, width: 4),
+                            TextButton(
                               onPressed: () {
                                 context.go(AppRouter.klogin);
                               },
                               child: const Text(
                                 'تسجيل الدخول',
-                                style: TextStyle(color: Colors.green,fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            horizontalSpace(context, width: 4),
-                            const Text(
-                              'لديك حساب بالفعل؟',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          
-                          
                           ],
                         ),
                       ],
