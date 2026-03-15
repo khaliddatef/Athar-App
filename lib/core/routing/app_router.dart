@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sanad/features/login/ui/login_screen.dart';
 import 'routes.dart';
-import '../../feature/onboarding/ui/on_boarding_screen.dart';
-import '../../feature/splash/ui/splash_screen.dart';
+import '../../features/onboarding/ui/on_boarding_screen.dart';
+import '../../features/splash/ui/splash_screen.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -11,6 +12,9 @@ class AppRouter {
 
       case Routes.onBoardingScreen:
         return MaterialPageRoute(builder: (_) => const OnBoardingScreen());
+
+      case Routes.loginScreen:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       default:
         return MaterialPageRoute(
