@@ -40,9 +40,19 @@ extension ResponsiveExtension on BuildContext {
     return (mobileValue / 812) * screenHeight;
   }
 
-  // Responsive font size - will remain as is for ScreenUtil
-  double responsiveFontSize(double fontSize) {
-    return fontSize;
+  // Responsive font size based on screen width
+  double responsiveFontSize(
+    double mobileFontSize, {
+    double? tabletFontSize,
+    double? desktopFontSize,
+  }) {
+    if (isDesktop && desktopFontSize != null) {
+      return desktopFontSize;
+    } else if (isTablet && tabletFontSize != null) {
+      return tabletFontSize;
+    }
+    // Scale based on screen width (375 is base design width)
+    return (mobileFontSize / 375) * screenWidth;
   }
 
   // Responsive radius
@@ -90,4 +100,5 @@ extension NumResponsive on num {
   double w(BuildContext context) => context.responsiveWidth(toDouble());
   double h(BuildContext context) => context.responsiveHeight(toDouble());
   double r(BuildContext context) => context.responsiveRadius(toDouble());
+  double sp(BuildContext context) => context.responsiveFontSize(toDouble());
 }
