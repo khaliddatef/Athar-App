@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sanad/core/constants/app_images.dart';
 import 'package:sanad/core/helper/responsive_extensions.dart';
 import 'package:sanad/core/helper/spacing.dart';
+import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/core/routing/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,7 +32,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, Routes.onBoardingScreen);
+        GoRouter.of(context).push(AppRouter.konboarding);
+        // Navigator.pushReplacementNamed(context, Routes.onBoardingScreen);
       }
     });
   }

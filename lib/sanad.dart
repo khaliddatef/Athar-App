@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sanad/core/routing/app_router.dart';
-import 'package:sanad/core/routing/routes.dart';
+import 'package:sanad/core/routing/router.dart';
+
 
 class Sanad extends StatelessWidget {
   const Sanad({super.key});
@@ -13,11 +13,12 @@ class Sanad extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
           title: 'Sanad',
           debugShowCheckedModeBanner: false,
-          initialRoute: Routes.splashScreen,
-          onGenerateRoute: AppRouter.generateRoute,
+          routerConfig: AppRouter.router,
+          // initialRoute: Routes.splashScreen,
+          // onGenerateRoute: AppRouter.generateRoute,
         );
       },
     );

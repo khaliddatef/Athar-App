@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sanad/core/constants/app_images.dart';
 import 'package:sanad/core/helper/responsive_extensions.dart';
 import 'package:sanad/core/helper/spacing.dart';
+import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/core/routing/routes.dart';
 import 'package:sanad/core/widgets/app_button.dart';
 import 'package:sanad/features/onboarding/ui/Widgets/dots_indicator.dart';
@@ -57,7 +59,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, Routes.loginScreen);
+      GoRouter.of(context).push(AppRouter.klogin);
+      // Navigator.pushReplacementNamed(context, Routes.loginScreen);
+
     }
   }
 
