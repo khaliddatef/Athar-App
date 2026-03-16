@@ -1,23 +1,15 @@
 import 'package:flutter/material.dart';
 
 class GoogleLoginButton extends StatelessWidget {
- 
-
-
-
-  GoogleLoginButton({super.key});
+ const GoogleLoginButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         GestureDetector(
-          onTap: () async {
-          
-          },
+          onTap: () async {},
           child: Container(
             width: 60,
             height: 44,
