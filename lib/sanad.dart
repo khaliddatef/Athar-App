@@ -21,9 +21,7 @@ class Sanad extends StatelessWidget {
 
           locale: const Locale('ar'),
 
-          supportedLocales: const [
-            Locale('ar'),
-          ],
+          supportedLocales: const [Locale('ar')],
 
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,

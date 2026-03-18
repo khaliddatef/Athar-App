@@ -29,7 +29,6 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultStyle = TextStyles.cairoExtraBold18White(context);
 
-
     return Container(
       width: width ?? double.infinity,
       height: height ?? 60.h(context),

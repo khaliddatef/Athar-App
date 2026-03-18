@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sanad/core/constants/app_images.dart';
-import 'package:sanad/core/helper/responsive_extensions.dart';
-import 'package:sanad/core/helper/spacing.dart';
-import 'package:sanad/core/routing/router.dart';
-import 'package:sanad/core/routing/routes.dart';
-import 'package:sanad/core/widgets/app_button.dart';
-import 'package:sanad/features/onboarding/ui/Widgets/dots_indicator.dart';
-import 'package:sanad/features/onboarding/ui/Widgets/onboarding_page.dart';
-
+import '../../../core/constants/app_images.dart';
+import '../../../core/helper/responsive_extensions.dart';
+import '../../../core/helper/spacing.dart';
+import '../../../core/routing/router.dart';
+import '../../../core/widgets/app_button.dart';
+import 'Widgets/dots_indicator.dart';
+import 'Widgets/onboarding_page.dart';
 import '../models/onboarding_model.dart';
-
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});
@@ -54,14 +51,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   void _onNext() {
     if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
+      _pageController.animateToPage(
+        _currentPage + 1,
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     } else {
       GoRouter.of(context).push(AppRouter.klogin);
-      // Navigator.pushReplacementNamed(context, Routes.loginScreen);
-
     }
   }
 
@@ -74,37 +70,40 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(Assets.backgroundSplashScreen, fit: BoxFit.cover),
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: _pages.length,
-                    onPageChanged: (index) =>
-                        setState(() => _currentPage = index),
-                    itemBuilder: (context, index) =>
-                        OnBoardingPage(data: _pages[index]),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(Assets.backgroundSplashScreen, fit: BoxFit.cover),
+            SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: _pages.length,
+                      onPageChanged: (index) =>
+                          setState(() => _currentPage = index),
+                      itemBuilder: (context, index) =>
+                          OnBoardingPage(data: _pages[index]),
+                    ),
                   ),
-                ),
-                DotsIndicator(count: _pages.length, current: _currentPage),
-                verticalSpace(context, height: 32),
-                Padding(
-                  padding: context.responsivePadding(horizontal: 24),
-                  child: AppButton(
-                    text: _pages[_currentPage].buttonText,
-                    onPressed: _onNext,
+                  DotsIndicator(count: _pages.length, current: _currentPage),
+                  verticalSpace(context, height: 32),
+                  Padding(
+                    padding: context.responsivePadding(horizontal: 24),
+                    child: AppButton(
+                      text: _pages[_currentPage].buttonText,
+                      onPressed: _onNext,
+                    ),
                   ),
-                ),
-                verticalSpace(context, height: 32),
-              ],
+                  verticalSpace(context, height: 32),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../../../../core/constants/app_images.dart';
 
 class HeaderAuth extends StatelessWidget {
   const HeaderAuth({super.key});
@@ -9,10 +9,7 @@ class HeaderAuth extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 100),
-        Image.asset(
-          "assets/images/sanad.png",
-          fit: BoxFit.contain,
-        ),
+        Image.asset(Assets.imageSanad, fit: BoxFit.contain),
       ],
     );
   }
