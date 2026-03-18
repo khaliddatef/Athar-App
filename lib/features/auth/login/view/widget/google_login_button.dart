@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/constants/app_images.dart';
+import '../../../../../core/helper/responsive_extensions.dart';
+import '../../../../../core/theme/app_colors.dart';
 
 class GoogleLoginButton extends StatelessWidget {
- const GoogleLoginButton({super.key});
+  const GoogleLoginButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,13 +14,13 @@ class GoogleLoginButton extends StatelessWidget {
         GestureDetector(
           onTap: () async {},
           child: Container(
-            width: 60,
-            height: 44,
+            width: context.responsiveWidth(60),
+            height: context.responsiveHeight(44),
             decoration: BoxDecoration(
-              color: const Color(0xffECECEC),
+              color: AppColors.lightGray,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Image.asset("assets/images/googlee.png"),
+            child: Image.asset(Assets.logoGoogle),
           ),
         ),
       ],

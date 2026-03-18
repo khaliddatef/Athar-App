@@ -4,6 +4,7 @@ import 'package:sanad/core/constants/app_images.dart';
 import 'package:sanad/core/helper/responsive_extensions.dart';
 import 'package:sanad/core/helper/spacing.dart';
 import 'package:sanad/core/routing/router.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

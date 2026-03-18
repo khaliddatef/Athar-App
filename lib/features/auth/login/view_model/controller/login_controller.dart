@@ -8,6 +8,7 @@ class LoginController extends ChangeNotifier {
     isPasswordHidden = !isPasswordHidden;
     notifyListeners();
   }
+
   void isHiddenConfirmPassword() {
     isConfirmPasswordHidden = !isConfirmPasswordHidden;
     notifyListeners();
