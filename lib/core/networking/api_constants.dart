@@ -1,26 +1,38 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
-  // static const String baseURL = 'http://10.0.2.2:3000/api/';
-  static const String baseURL =
-      'https://yalla-koraapi-production.up.railway.app/api/';
+  static const String _androidEmulatorBaseUrl = 'http://10.0.2.2:3000/api/';
+  static const String _defaultBaseUrl = 'http://127.0.0.1:3000/api/';
+  static const String _baseUrlOverride = String.fromEnvironment('API_BASE_URL');
+
+  static String get baseUrl {
+    final normalizedOverride = _normalizeBaseUrl(_baseUrlOverride);
+
+    if (normalizedOverride != null) {
+      return normalizedOverride;
+    }
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return _androidEmulatorBaseUrl;
+    }
+
+    return _defaultBaseUrl;
+  }
+
+  static String? _normalizeBaseUrl(String value) {
+    final trimmedValue = value.trim();
+
+    if (trimmedValue.isEmpty) {
+      return null;
+    }
+
+    return trimmedValue.endsWith('/') ? trimmedValue : '$trimmedValue/';
+  }
+
   static const String login = 'auth/login';
   static const String register = 'auth/register';
-  static const String verifyOtp = 'auth/verify-otp';
-}
-
-class ApiErrors {
-  static const String badRequestError = "badRequestError";
-  static const String noContent = "noContent";
-  static const String forbiddenError = "forbiddenError";
-  static const String unauthorizedError = "unauthorizedError";
-  static const String notFoundError = "notFoundError";
-  static const String conflictError = "conflictError";
-  static const String internalServerError = "internalServerError";
-  static const String unknownError = "unknownError";
-  static const String timeoutError = "timeoutError";
-  static const String defaultError = "defaultError";
-  static const String cacheError = "cacheError";
-  static const String noInternetError = "noInternetError";
-  static const String loadingMessage = "loading_message";
-  static const String retryAgainMessage = "retry_again_message";
-  static const String ok = "Ok";
+  static const String refresh = 'auth/refresh';
+  static const String logout = 'auth/logout';
+  static const String profile = 'auth/me';
+  static const String health = 'health';
 }

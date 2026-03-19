@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sanad/core/helper/helper_functions/build_snack_bar.dart';
 import 'package:sanad/core/helper/spacing.dart';
+import 'package:sanad/core/networking/api_exception.dart';
 import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/core/widgets/app_button.dart';
 import 'package:sanad/core/widgets/loading_app.dart';
 import 'package:sanad/features/auth/login/view/widget/header_auth.dart';
 import 'package:sanad/features/auth/login/view/widget/text_form_field_custom.dart';
+import 'package:sanad/features/auth/view_model/controller/auth_controller.dart';
 import 'package:sanad/features/auth/login/view_model/controller/login_controller.dart';
 
 class LoginBody extends StatefulWidget {
@@ -22,6 +25,13 @@ class _LoginBodyState extends State<LoginBody> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool isLoading = false;
+
+  @override
+  void dispose() {
+    national.dispose();
+    password.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +63,7 @@ class _LoginBodyState extends State<LoginBody> {
                             return null;
                           },
                           controller: national,
-
+                          keyboardType: TextInputType.number,
                           label: 'الرقم القومي',
                         ),
                         const SizedBox(height: 16),
@@ -62,7 +72,7 @@ class _LoginBodyState extends State<LoginBody> {
                             return TextFormFieldCustom(
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return 'الرجاء إدخال كلمة المرور';
                                 }
                                 return null;
                               },
@@ -103,17 +113,44 @@ class _LoginBodyState extends State<LoginBody> {
                         verticalSpace(context, height: 10),
                         AppButton(
                           text: 'تسجيل دخول',
-
                           onPressed: () async {
                             if (!_formKey.currentState!.validate()) return;
-                            setState(() {
-                              isLoading = true;
-                            });
-                            await Future.delayed(const Duration(seconds: 1));
-                            setState(() {
-                              isLoading = false;
-                            });
-                            context.go(AppRouter.kmain);
+
+                            setState(() => isLoading = true);
+
+                            try {
+                              final authController = context
+                                  .read<AuthController>();
+
+                              await authController.login(
+                                nationalId: national.text.trim(),
+                                password: password.text,
+                              );
+
+                              if (!context.mounted) {
+                                return;
+                              }
+
+                              buildSnackBar(
+                                context: context,
+                                text: 'تم تسجيل الدخول بنجاح',
+                                color: Colors.green,
+                              );
+                            } on ApiException catch (error) {
+                              if (!context.mounted) {
+                                return;
+                              }
+
+                              buildSnackBar(
+                                context: context,
+                                text: error.message,
+                                color: Colors.red,
+                              );
+                            } finally {
+                              if (mounted) {
+                                setState(() => isLoading = false);
+                              }
+                            }
                           },
                         ),
 

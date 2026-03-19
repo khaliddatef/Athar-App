@@ -12,42 +12,75 @@ class OnBoardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleStyle = switch (data.titleStyleType) {
-      TitleStyleType.boldBlack => TextStyles.cairoBold32Black(context),
-      TitleStyleType.boldDark => TextStyles.cairoBold32Dark(context),
-    };
-
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Padding(
-        padding: context.responsivePadding(horizontal: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            verticalSpace(context, height: 24),
-            SvgPicture.asset(
-              data.image,
-              width: 280.w(context),
-              height: 280.w(context),
-              fit: BoxFit.contain,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isWideLayout = constraints.maxWidth >= 900;
+          final double imageSize = isWideLayout
+              ? (constraints.maxHeight * 0.42).clamp(220.0, 320.0)
+              : (constraints.maxWidth * 0.72).clamp(180.0, 280.0);
+
+          final titleStyle = switch (data.titleStyleType) {
+            TitleStyleType.boldBlack => TextStyles.cairoBold32Black(context),
+            TitleStyleType.boldDark => TextStyles.cairoBold32Dark(context),
+          }.copyWith(
+            fontSize: context.responsiveFontSize(
+              32,
+              tabletFontSize: 30,
+              desktopFontSize: 36,
             ),
-            verticalSpace(context, height: 40),
-            Text(
-              data.title,
-              textAlign: data.titleAlign,
-              style: titleStyle,
+          );
+
+          final descriptionStyle = TextStyles.cairoRegular14Muted(context).copyWith(
+            fontSize: context.responsiveFontSize(
+              14,
+              tabletFontSize: 15,
+              desktopFontSize: 16,
             ),
-            verticalSpace(context, height: 16),
-            SizedBox(
-              width: 291.w(context),
-              child: Text(
-                data.description,
-                textAlign: TextAlign.center,
-                style: TextStyles.cairoRegular14Muted(context),
+          );
+
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isWideLayout ? 48 : 24.w(context),
+                  vertical: 12.h(context),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    verticalSpace(context, height: 12),
+                    SvgPicture.asset(
+                      data.image,
+                      width: imageSize,
+                      height: imageSize,
+                      fit: BoxFit.contain,
+                    ),
+                    verticalSpace(context, height: isWideLayout ? 16 : 24),
+                    Text(
+                      data.title,
+                      textAlign: data.titleAlign,
+                      style: titleStyle,
+                    ),
+                    verticalSpace(context, height: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isWideLayout ? 520 : 291.w(context),
+                      ),
+                      child: Text(
+                        data.description,
+                        textAlign: TextAlign.center,
+                        style: descriptionStyle,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

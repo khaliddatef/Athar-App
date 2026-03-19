@@ -1,0 +1,14 @@
+{
+  "name": "sanad-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "backend:dev": "npm --prefix backend run dev",
+    "db:push": "npm --prefix backend run prisma:push",
+    "db:check": "npm --prefix backend run db:check",
+    "studio": "npm --prefix backend run prisma:studio",
+    "backend:db:push": "npm --prefix backend run prisma:push",
+    "backend:db:check": "npm --prefix backend run db:check",
+    "backend:studio": "npm --prefix backend run prisma:studio"
+  }
+}

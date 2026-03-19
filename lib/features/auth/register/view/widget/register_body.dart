@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sanad/core/helper/helper_functions/build_snack_bar.dart';
 import 'package:sanad/core/helper/spacing.dart';
+import 'package:sanad/core/helper/validation.dart';
+import 'package:sanad/core/networking/api_exception.dart';
 import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/core/widgets/app_button.dart';
 import 'package:sanad/core/widgets/loading_app.dart';
 import 'package:sanad/features/auth/login/view/widget/header_auth.dart';
 import 'package:sanad/features/auth/login/view/widget/text_form_field_custom.dart';
+import 'package:sanad/features/auth/view_model/controller/auth_controller.dart';
 import 'package:sanad/features/auth/login/view_model/controller/login_controller.dart';
 
 class RegisterBody extends StatefulWidget {
@@ -20,13 +24,42 @@ class _RegisterBodyState extends State<RegisterBody> {
   final TextEditingController email = TextEditingController();
   final TextEditingController national = TextEditingController();
   final TextEditingController phone = TextEditingController();
-  final TextEditingController age = TextEditingController();
+  final TextEditingController dateOfBirth = TextEditingController();
   final TextEditingController name = TextEditingController();
   final TextEditingController password = TextEditingController();
   final TextEditingController confirmPassword = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool isLoading = false;
+
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime(now.year - 18, now.month, now.day),
+      firstDate: DateTime(now.year - 100),
+      lastDate: DateTime(now.year - 10),
+      helpText: 'اختر تاريخ الميلاد',
+    );
+
+    if (pickedDate == null) {
+      return;
+    }
+
+    dateOfBirth.text = pickedDate.toIso8601String().split('T').first;
+  }
+
+  @override
+  void dispose() {
+    email.dispose();
+    national.dispose();
+    phone.dispose();
+    dateOfBirth.dispose();
+    name.dispose();
+    password.dispose();
+    confirmPassword.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +87,6 @@ class _RegisterBodyState extends State<RegisterBody> {
                             return null;
                           },
                           controller: name,
-
                           label: 'الاسم',
                         ),
                         verticalSpace(context, height: 10),
@@ -73,20 +105,23 @@ class _RegisterBodyState extends State<RegisterBody> {
                             return null;
                           },
                           controller: national,
-
+                          keyboardType: TextInputType.number,
                           label: 'الرقم القومي',
                         ),
                         verticalSpace(context, height: 10),
                         TextFormFieldCustom(
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'الرجاء إدخال العمر';
-                            }
-                            return null;
+                            return AppValidator.validateBirthdate(value);
                           },
-                          controller: age,
-
-                          label: 'العمر',
+                          controller: dateOfBirth,
+                          readOnly: true,
+                          onTap: _pickDateOfBirth,
+                          suffixIcon: const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          hintText: 'YYYY-MM-DD',
+                          label: 'تاريخ الميلاد',
                         ),
                         verticalSpace(context, height: 10),
                         TextFormFieldCustom(
@@ -97,15 +132,13 @@ class _RegisterBodyState extends State<RegisterBody> {
                             final emailRegex = RegExp(
                               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                             );
-                            final phoneRegex = RegExp(r'^[0-9]{10,15}$');
-
-                            if (!emailRegex.hasMatch(value.trim()) &&
-                                !phoneRegex.hasMatch(value.trim())) {
+                            if (!emailRegex.hasMatch(value.trim())) {
                               return 'من فضلك أدخل بريد إلكتروني صحيح ';
                             }
                             return null;
                           },
                           controller: email,
+                          keyboardType: TextInputType.emailAddress,
                           suffixIcon: const Icon(
                             Icons.email_outlined,
                             color: Colors.grey,
@@ -118,9 +151,14 @@ class _RegisterBodyState extends State<RegisterBody> {
                             if (value == null || value.trim().isEmpty) {
                               return 'الرجاء إدخال رقم الهاتف';
                             }
+                            final phoneRegex = RegExp(r'^[0-9]{10,15}$');
+                            if (!phoneRegex.hasMatch(value.trim())) {
+                              return 'من فضلك أدخل رقم هاتف صحيح';
+                            }
                             return null;
                           },
                           controller: phone,
+                          keyboardType: TextInputType.phone,
                           suffixIcon: const Icon(
                             Icons.phone,
                             color: Colors.grey,
@@ -133,7 +171,10 @@ class _RegisterBodyState extends State<RegisterBody> {
                             return TextFormFieldCustom(
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return 'كلمة المرور مطلوبة';
+                                }
+                                if (value.length < 6) {
+                                  return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
                                 }
                                 return null;
                               },
@@ -158,12 +199,13 @@ class _RegisterBodyState extends State<RegisterBody> {
                           builder: (context, controller, child) {
                             return TextFormFieldCustom(
                               controller: confirmPassword,
-                              obscureText: controller.isPasswordHidden,
+                              obscureText: controller.isConfirmPasswordHidden,
                               suffixIcon: IconButton(
                                 color: Colors.grey,
-                                onPressed: () => controller.isHidden(),
+                                onPressed: () =>
+                                    controller.isHiddenConfirmPassword(),
                                 icon: Icon(
-                                  controller.isPasswordHidden
+                                  controller.isConfirmPasswordHidden
                                       ? Icons.visibility_off
                                       : Icons.visibility,
                                 ),
@@ -184,17 +226,49 @@ class _RegisterBodyState extends State<RegisterBody> {
                         verticalSpace(context, height: 10),
                         AppButton(
                           text: 'انشاء حساب',
-
                           onPressed: () async {
                             if (!_formKey.currentState!.validate()) return;
-                            setState(() {
-                              isLoading = true;
-                            });
-                            await Future.delayed(const Duration(seconds: 1));
-                            setState(() {
-                              isLoading = false;
-                            });
-                            context.go(AppRouter.kmain);
+
+                            setState(() => isLoading = true);
+
+                            try {
+                              final authController = context
+                                  .read<AuthController>();
+
+                              await authController.register(
+                                fullName: name.text.trim(),
+                                nationalId: national.text.trim(),
+                                email: email.text.trim(),
+                                phone: phone.text.trim(),
+                                dateOfBirth: dateOfBirth.text.trim(),
+                                password: password.text,
+                                confirmPassword: confirmPassword.text,
+                              );
+
+                              if (!context.mounted) {
+                                return;
+                              }
+
+                              buildSnackBar(
+                                context: context,
+                                text: 'تم إنشاء الحساب بنجاح',
+                                color: Colors.green,
+                              );
+                            } on ApiException catch (error) {
+                              if (!context.mounted) {
+                                return;
+                              }
+
+                              buildSnackBar(
+                                context: context,
+                                text: error.message,
+                                color: Colors.red,
+                              );
+                            } finally {
+                              if (mounted) {
+                                setState(() => isLoading = false);
+                              }
+                            }
                           },
                         ),
 

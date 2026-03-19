@@ -54,7 +54,14 @@ class AppValidator {
     try {
       final date = DateTime.parse(value.trim());
       final now = DateTime.now();
-      final age = now.year - date.year;
+      int age = now.year - date.year;
+
+      if (
+        now.month < date.month ||
+        (now.month == date.month && now.day < date.day)
+      ) {
+        age -= 1;
+      }
 
       if (age < 10 || age > 100) {
         return 'العمر يجب أن يكون بين 10 و 100 سنة';
