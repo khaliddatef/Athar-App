@@ -33,10 +33,7 @@ class StatCard extends StatelessWidget {
           colors: [AppColors.white, AppColors.gradientGray],
         ),
         borderRadius: BorderRadius.circular(12.r(context)),
-        border: Border.all(
-          color: AppColors.cardBorder,
-          width: 0.8,
-        ),
+        border: Border.all(color: AppColors.cardBorder, width: 0.8),
         boxShadow: const [
           BoxShadow(
             color: Color(0x19000000),
@@ -56,15 +53,9 @@ class StatCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyles.cairoRegular12Gray(context),
-          ),
+          Text(title, style: TextStyles.cairoRegular12Gray(context)),
           verticalSpace(context, height: 4),
-          Text(
-            value,
-            style: valueStyle,
-          ),
+          Text(value, style: valueStyle),
         ],
       ),
     );

@@ -92,7 +92,11 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 GButton(
                   icon: Icons.chat_bubble_outline,
-                  leading: _svgIcon(context, Assets.messageCircle, currentIndex == 2),
+                  leading: _svgIcon(
+                    context,
+                    Assets.messageCircle,
+                    currentIndex == 2,
+                  ),
                   text: 'محادثاتي',
                   textStyle: TextStyles.cairoBold10Primary(context),
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sanad/core/routing/router.dart';
-
+import 'core/routing/router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 class Sanad extends StatelessWidget {
@@ -18,11 +17,8 @@ class Sanad extends StatelessWidget {
           title: 'Sanad',
           debugShowCheckedModeBanner: false,
           routerConfig: AppRouter.router,
-
           locale: const Locale('ar'),
-
           supportedLocales: const [Locale('ar')],
-
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

@@ -30,10 +30,7 @@ class TasksSection extends StatelessWidget {
               final task = tasks[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: TaskCard(
-                  title: task["title"]!,
-                  time: task["time"]!,
-                ),
+                child: TaskCard(title: task["title"]!, time: task["time"]!),
               );
             },
           ),
@@ -47,11 +44,7 @@ class TaskCard extends StatelessWidget {
   final String title;
   final String time;
 
-  const TaskCard({
-    super.key,
-    required this.title,
-    required this.time,
-  });
+  const TaskCard({super.key, required this.title, required this.time});
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +58,8 @@ class TaskCard extends StatelessWidget {
         children: [
           const Icon(Icons.location_on, color: Colors.green),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(title),
-          ),
-          Text(
-            time,
-            style: const TextStyle(color: Colors.green),
-          )
+          Expanded(child: Text(title)),
+          Text(time, style: const TextStyle(color: Colors.green)),
         ],
       ),
     );

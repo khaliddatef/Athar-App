@@ -128,10 +128,10 @@ class TextFormFieldCustom extends StatelessWidget {
 //           controller: controller,
 //           validator: validator,
 //           obscureText: obscureText!,
-     
+
 //           decoration: InputDecoration(
-//             prefixIcon: prefixIcon, 
-//             suffixIcon: suffixIcon, 
+//             prefixIcon: prefixIcon,
+//             suffixIcon: suffixIcon,
 //             fillColor: Colors.white,
 //             filled: true,
 //             border: OutlineInputBorder(

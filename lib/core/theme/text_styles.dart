@@ -178,4 +178,3 @@ class TextStyles {
     height: 2.25,
   );
 }
- 
