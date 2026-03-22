@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/helper/responsive_extensions.dart';
 import '../../../../core/helper/spacing.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/text_styles.dart';
 
 class ChatTabButton extends StatelessWidget {
@@ -28,7 +29,7 @@ class ChatTabButton extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           height: 56.h(context),
           decoration: ShapeDecoration(
-            color: isActive ? const Color(0xFF1A7A4A) : Colors.white,
+            color: isActive ? AppColors.chatChipBorder : Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r(context)),
             ),

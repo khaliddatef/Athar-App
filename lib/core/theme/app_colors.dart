@@ -22,4 +22,9 @@ class AppColors {
   static const Color tasksChipBackground = Color(0xFFD3F7E6);
   static const Color secondaryGray = Color(0xFF979797);
   static const Color iconBackgroundGreen = Color(0x26188A55);
+  static const Color chatChipBorder = Color(0xFF1A7A4A);
+  static const Color shadowColor = Color(0x19000000);
+  static const Color darkGreen = Color(0xFF063610);
+  static const Color darkBlue = Color(0xFF1A1A2E);
+  static const Color textGray = Color(0xFF888888);
 }
