@@ -12,8 +12,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
   flutter_localizations:
-    sdk: flutter  
+    sdk: flutter
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.2.4
   go_router: ^17.1.0

@@ -3,7 +3,7 @@ import 'package:sanad/features/auth/forget/forget_view.dart';
 import 'package:sanad/features/auth/login/view/login_screen.dart';
 import 'package:sanad/features/auth/register/view/register_screen.dart';
 import 'package:sanad/features/home/view/home_screen.dart';
-import 'package:sanad/features/main/view/main_view.dart';
+import 'package:sanad/features/main/view/main_screen.dart';
 import 'package:sanad/features/onboarding/ui/on_boarding_screen.dart';
 import 'package:sanad/features/splash/ui/splash_screen.dart';
 

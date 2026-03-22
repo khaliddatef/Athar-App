@@ -49,11 +49,7 @@ class HeaderSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.r(context)),
           ),
           child: Center(
-            child: Icon(
-              Icons.notifications_none,
-              color: AppColors.black,
-              size: 24.sp(context),
-            ),
+            child: Image.asset(width: 24.w(context), Assets.imageNotifications),
           ),
         ),
       ],

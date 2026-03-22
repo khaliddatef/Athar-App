@@ -8,6 +8,7 @@ class Assets {
   static const String imageSanad = 'assets/images/sanad.png';
   static const String imageNotifications = 'assets/images/notifications.png';
   static const String imageMapPin = 'assets/images/map-pin.png';
+  static const String imageChatBot = 'assets/images/chat_bot.png';
 
   //onboarding =>Svg//
   static const String onboarding1 = 'assets/SVG/onboarding_1.svg';
@@ -17,4 +18,7 @@ class Assets {
   static const String map = 'assets/SVG/map.svg';
   static const String messageCircle = 'assets/SVG/message-circle.svg';
   static const String account = 'assets/SVG/account.svg';
+  static const String community = 'assets/SVG/community.svg';
+  static const String aiChat = 'assets/SVG/AI_chat.svg';
+  static const String botChat = 'assets/SVG/Bot_chat.svg';
 }

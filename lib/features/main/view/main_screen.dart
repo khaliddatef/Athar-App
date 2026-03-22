@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/text_styles.dart';
+import '../../chats_and_community/ui/Widgets/chats_and_community_screen.dart';
 import '../../home/view/home_screen.dart';
 import '../../../core/constants/app_images.dart';
 import '../../../core/helper/responsive_extensions.dart';
@@ -18,9 +19,29 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
 
   final List<Widget> screens = [
-    const HomeScreen(),
+    Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(Assets.backgroundSplashScreen),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: const HomeScreen(),
+    ),
     const MapScreen(),
-    const ChatScreen(),
+    Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(Assets.backgroundSplashScreen),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: const ChatsAndCommunityScreen(),
+    ),
     const AccountScreen(),
   ];
 
@@ -123,18 +144,6 @@ class AccountScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("حسابي")),
       body: const Center(child: Text("هذه شاشة حسابي")),
-    );
-  }
-}
-
-class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("محادثاتي")),
-      body: const Center(child: Text("هذه شاشة المحادثات")),
     );
   }
 }

@@ -177,4 +177,44 @@ class TextStyles {
     fontWeight: FontWeight.w700,
     height: 2.25,
   );
+
+  static TextStyle cairoBold20DarkBlue(BuildContext context) => TextStyle(
+    color: const Color(0xFF1A1A2E),
+    fontSize: 20.sp(context),
+    fontFamily: 'Cairo',
+    fontWeight: FontWeight.w700,
+    height: 1.40,
+  );
+
+  static TextStyle cairoBold14White(BuildContext context) => TextStyle(
+    color: Colors.white,
+    fontSize: 14.sp(context),
+    fontFamily: 'Cairo',
+    fontWeight: FontWeight.w700,
+    height: 1.71,
+  );
+
+  static TextStyle cairoBold14Gray(BuildContext context) => TextStyle(
+    color: const Color(0xFF888888),
+    fontSize: 14.sp(context),
+    fontFamily: 'Cairo',
+    fontWeight: FontWeight.w700,
+    height: 1.71,
+  );
+
+  static TextStyle cairoMedium12DarkBlue(BuildContext context) => TextStyle(
+    color: const Color(0xFF1A1A2E),
+    fontSize: 12.sp(context),
+    fontFamily: 'Cairo',
+    fontWeight: FontWeight.w500,
+    height: 2.17,
+  );
+
+  static TextStyle cairoRegular10Gray(BuildContext context) => TextStyle(
+    color: const Color(0xFF888888),
+    fontSize: 10.sp(context),
+    fontFamily: 'Cairo',
+    fontWeight: FontWeight.w400,
+    height: 1.60,
+  );
 }
