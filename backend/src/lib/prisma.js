@@ -1,5 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
 
 const env = require('../config/env');
 
@@ -10,10 +9,7 @@ function createPrismaClient() {
     throw new Error('DATABASE_URL is not configured. Add it to backend/.env first.');
   }
 
-  const adapter = new PrismaMariaDb(env.databaseUrl);
-
   return new PrismaClient({
-    adapter,
     log: ['error', 'warn'],
   });
 }
