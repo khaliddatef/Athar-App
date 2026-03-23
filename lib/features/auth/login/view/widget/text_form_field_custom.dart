@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sanad/core/helper/responsive_extensions.dart';
+import 'package:sanad/core/helper/spacing.dart';
+import 'package:sanad/core/theme/app_colors.dart';
+import 'package:sanad/core/theme/text_styles.dart';
 
 class TextFormFieldCustom extends StatelessWidget {
   const TextFormFieldCustom({
@@ -31,18 +35,10 @@ class TextFormFieldCustom extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label != null)
-          Text(
-            label!,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-        const SizedBox(height: 8),
-
+        if (label != null) ...[
+          Text(label!, style: TextStyles.cairoMedium12Black(context)),
+          verticalSpace(context, height: 8),
+        ],
         TextFormField(
           controller: controller,
           validator: validator,
@@ -51,20 +47,45 @@ class TextFormFieldCustom extends StatelessWidget {
           readOnly: readOnly,
           onTap: onTap,
           textAlign: TextAlign.start,
+          style: TextStyles.cairoMedium14Black(context),
           decoration: InputDecoration(
             hintText: hintText,
+            hintStyle: TextStyles.cairoExtraLight12Hint(context),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w(context),
+              vertical: 14.h(context),
+            ),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
-            fillColor: Colors.white,
+            fillColor: AppColors.transparent,
             filled: true,
-            // لجعل التصميم يشبه الصورة الثانية (إضافة حدود خفيفة)
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12.r(context)),
+              borderSide: const BorderSide(
+                color: AppColors.borderColor,
+                width: 1,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12.r(context)),
+              borderSide: const BorderSide(
+                color: AppColors.borderColor,
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r(context)),
+              borderSide: const BorderSide(
+                color: AppColors.primaryColor,
+                width: 1,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r(context)),
+              borderSide: const BorderSide(
+                color: AppColors.errorColor,
+                width: 1,
+              ),
             ),
           ),
         ),

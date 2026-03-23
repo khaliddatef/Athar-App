@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:sanad/core/constants/app_images.dart';
+import 'package:sanad/core/theme/app_colors.dart';
+import 'package:sanad/core/theme/text_styles.dart';
+import 'package:sanad/core/helper/responsive_extensions.dart';
+import 'package:sanad/core/helper/spacing.dart';
 
 class HeaderSection extends StatelessWidget {
   const HeaderSection({super.key});
@@ -7,25 +12,46 @@ class HeaderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const CircleAvatar(
-          radius: 20,
-          backgroundImage: AssetImage("assets/images/image_face.png"),
+        CircleAvatar(
+          radius: 24.r(context),
+          backgroundImage: const AssetImage(Assets.imageFace),
         ),
-
-        const SizedBox(width: 10),
+        horizontalSpace(context, width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "مرحباً أحمد",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          children: [
+            Text("مرحباً، أحمد", style: TextStyles.cairoBold16Black(context)),
+            Row(
+              children: [
+                Container(
+                  width: 8.w(context),
+                  height: 8.w(context),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                horizontalSpace(context, width: 6),
+                Text(
+                  "متصل الآن",
+                  style: TextStyles.cairoRegular12Gray(context),
+                ),
+              ],
             ),
-            Text("متطوع", style: TextStyle(color: Colors.grey)),
           ],
         ),
         const Spacer(),
-
-        const Icon(Icons.notifications_none),
+        Container(
+          width: 44.w(context),
+          height: 44.w(context),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12.r(context)),
+          ),
+          child: Center(
+            child: Image.asset(width: 24.w(context), Assets.imageNotifications),
+          ),
+        ),
       ],
     );
   }

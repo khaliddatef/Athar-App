@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class CustomBottomNav extends StatefulWidget {
   const CustomBottomNav({super.key});
 
@@ -18,12 +17,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
     Icons.home_outlined,
   ];
 
-  final List<String> labels = [
-    "حسابي",
-    "محادثاتي",
-    "الخريطة",
-    "الرئيسية",
-  ];
+  final List<String> labels = ["حسابي", "محادثاتي", "الخريطة", "الرئيسية"];
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +25,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       height: 70,
       decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 10,
-            color: Colors.black12,
-          )
-        ],
+        boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -53,9 +42,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
               children: [
                 Icon(
                   icons[index],
-                  color: currentIndex == index
-                      ? Colors.green
-                      : Colors.grey,
+                  color: currentIndex == index ? Colors.green : Colors.grey,
                 ),
 
                 const SizedBox(height: 4),
@@ -64,9 +51,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                   labels[index],
                   style: TextStyle(
                     fontSize: 12,
-                    color: currentIndex == index
-                        ? Colors.green
-                        : Colors.grey,
+                    color: currentIndex == index ? Colors.green : Colors.grey,
                   ),
                 ),
 
@@ -82,7 +67,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                )
+                ),
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sanad/core/helper/helper_functions/build_snack_bar.dart';
+import 'package:sanad/core/helper/responsive_extensions.dart';
 import 'package:sanad/core/helper/spacing.dart';
 import 'package:sanad/core/networking/api_exception.dart';
 import 'package:sanad/core/routing/router.dart';
@@ -9,8 +10,11 @@ import 'package:sanad/core/widgets/app_button.dart';
 import 'package:sanad/core/widgets/loading_app.dart';
 import 'package:sanad/features/auth/login/view/widget/header_auth.dart';
 import 'package:sanad/features/auth/login/view/widget/text_form_field_custom.dart';
-import 'package:sanad/features/auth/view_model/controller/auth_controller.dart';
 import 'package:sanad/features/auth/login/view_model/controller/login_controller.dart';
+import 'package:sanad/features/auth/view_model/controller/auth_controller.dart';
+
+import '../../../../../core/helper/validation.dart';
+import '../../../../../core/theme/text_styles.dart';
 
 class LoginBody extends StatefulWidget {
   const LoginBody({super.key});
@@ -23,7 +27,6 @@ class _LoginBodyState extends State<LoginBody> {
   final TextEditingController national = TextEditingController();
   final TextEditingController password = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool isLoading = false;
 
   @override
@@ -35,6 +38,12 @@ class _LoginBodyState extends State<LoginBody> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = context.responsiveWidth(
+      16,
+      tabletValue: 80,
+      desktopValue: 200,
+    );
+
     return Stack(
       children: [
         AbsorbPointer(
@@ -43,7 +52,7 @@ class _LoginBodyState extends State<LoginBody> {
             child: SizedBox(
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: SingleChildScrollView(
                   child: Form(
                     key: _formKey,
@@ -52,30 +61,16 @@ class _LoginBodyState extends State<LoginBody> {
                         const HeaderAuth(),
                         verticalSpace(context, height: 40),
                         TextFormFieldCustom(
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'الرجاء إدخال الرقم القومي';
-                            }
-                            final nationalIdRegex = RegExp(r'^[2-3][0-9]{13}$');
-                            if (!nationalIdRegex.hasMatch(value.trim())) {
-                              return 'الرجاء إدخال رقم قومي صالح مكون من 14 رقم';
-                            }
-                            return null;
-                          },
+                          validator: AppValidator.validateNationalId,
                           controller: national,
                           keyboardType: TextInputType.number,
                           label: 'الرقم القومي',
                         ),
-                        const SizedBox(height: 16),
+                        verticalSpace(context, height: 16),
                         Consumer<LoginController>(
                           builder: (context, controller, child) {
                             return TextFormFieldCustom(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'الرجاء إدخال كلمة المرور';
-                                }
-                                return null;
-                              },
+                              validator: AppValidator.validatePassword,
                               controller: password,
                               obscureText: controller.isPasswordHidden,
                               suffixIcon: IconButton(
@@ -87,12 +82,11 @@ class _LoginBodyState extends State<LoginBody> {
                                       : Icons.visibility,
                                 ),
                               ),
-
                               label: 'كلمة المرور',
                             );
                           },
                         ),
-                        const SizedBox(height: 15),
+                        verticalSpace(context, height: 15),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -100,12 +94,10 @@ class _LoginBodyState extends State<LoginBody> {
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.white,
                               ),
-                              onPressed: () {
-                                context.push(AppRouter.kforget);
-                              },
-                              child: const Text(
+                              onPressed: () => context.push(AppRouter.kforget),
+                              child: Text(
                                 'نسيت كلمة المرور ؟',
-                                style: TextStyle(color: Colors.green),
+                                style: TextStyles.cairoRegular14Primary(context),
                               ),
                             ),
                           ],
@@ -119,17 +111,14 @@ class _LoginBodyState extends State<LoginBody> {
                             setState(() => isLoading = true);
 
                             try {
-                              final authController = context
-                                  .read<AuthController>();
+                              final authController = context.read<AuthController>();
 
                               await authController.login(
                                 nationalId: national.text.trim(),
                                 password: password.text,
                               );
 
-                              if (!context.mounted) {
-                                return;
-                              }
+                              if (!context.mounted) return;
 
                               buildSnackBar(
                                 context: context,
@@ -137,9 +126,7 @@ class _LoginBodyState extends State<LoginBody> {
                                 color: Colors.green,
                               );
                             } on ApiException catch (error) {
-                              if (!context.mounted) {
-                                return;
-                              }
+                              if (!context.mounted) return;
 
                               buildSnackBar(
                                 context: context,
@@ -153,28 +140,25 @@ class _LoginBodyState extends State<LoginBody> {
                             }
                           },
                         ),
-
-                        //  verticalSpace(context, height: 40),
-                        // //  GoogleLoginButton(),
-                        //  verticalSpace(context, height: 40),
+                        verticalSpace(context, height: 105),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
+                            Text(
                               'ليس لديك حساب ؟ ',
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyles.cairoRegular14Black(context),
                             ),
                             horizontalSpace(context, width: 4),
                             TextButton(
-                              onPressed: () {
-                                context.go(AppRouter.kregister);
-                              },
-                              child: const Text(
+                              onPressed: () => context.go(AppRouter.kregister),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
                                 'سجل الأن',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyles.cairoRegular14Primary(context),
                               ),
                             ),
                           ],
@@ -187,8 +171,7 @@ class _LoginBodyState extends State<LoginBody> {
             ),
           ),
         ),
-
-        if (isLoading) LoadingApp(),
+        if (isLoading) const LoadingApp(),
       ],
     );
   }

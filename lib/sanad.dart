@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sanad/core/routing/router.dart';
 import 'package:sanad/features/auth/view_model/controller/auth_controller.dart';
-
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 class Sanad extends StatefulWidget {
   const Sanad({super.key});

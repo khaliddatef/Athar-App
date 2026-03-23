@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sanad/features/auth/login/view_model/controller/login_controller.dart';
 import 'package:sanad/features/auth/register/view/widget/register_body.dart';
+
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
   @override
@@ -26,4 +27,3 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 }
-

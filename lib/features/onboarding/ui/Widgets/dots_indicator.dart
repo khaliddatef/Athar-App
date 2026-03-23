@@ -1,6 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import '../../../../../core/helper/responsive_extensions.dart';
 import '../../../../../core/theme/app_colors.dart';
 
@@ -14,6 +12,7 @@ class DotsIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      textDirection: TextDirection.ltr,
       children: List.generate(count, (index) {
         final bool isActive = index == current;
         return AnimatedContainer(
