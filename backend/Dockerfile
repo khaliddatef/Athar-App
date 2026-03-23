@@ -4,15 +4,15 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci --omit=dev
 
-COPY prisma ./prisma
-COPY prisma.config.ts ./
+COPY backend/prisma ./prisma
+COPY backend/prisma.config.ts ./
 RUN npx prisma generate
 
-COPY src ./src
-COPY README.md ./README.md
+COPY backend/src ./src
+COPY backend/README.md ./README.md
 
 EXPOSE 3000
 
