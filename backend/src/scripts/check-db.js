@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const env = require('../config/env');
-const prisma = require('../lib/prisma');
 
 function hasPlaceholderDatabaseUrl(databaseUrl) {
   return (
@@ -14,10 +13,12 @@ function hasPlaceholderDatabaseUrl(databaseUrl) {
 async function main() {
   if (hasPlaceholderDatabaseUrl(env.databaseUrl)) {
     console.error(
-      'DATABASE_URL ما زالت placeholder. عدل backend/.env إلى بيانات MySQL الحقيقية أولًا.',
+      'Database URL is missing or still placeholder. Set DATABASE_URL, MYSQL_URL, or Railway MySQL variables.',
     );
     process.exit(1);
   }
+
+  const prisma = require('../lib/prisma');
 
   try {
     await prisma.$connect();
@@ -33,4 +34,3 @@ async function main() {
 }
 
 main();
-

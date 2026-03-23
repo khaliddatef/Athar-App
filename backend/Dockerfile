@@ -20,4 +20,4 @@ COPY backend/README.md ./README.md
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "src/server.js"]

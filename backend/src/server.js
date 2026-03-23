@@ -1,15 +1,30 @@
 require('dotenv').config();
 
-const app = require('./app');
 const env = require('./config/env');
-const prisma = require('./lib/prisma');
 const { ensureDatabaseConnection, validateEnvironment } = require('./utils/startup');
 
 let server;
+let prisma;
 
 async function startServer() {
   validateEnvironment();
-  await ensureDatabaseConnection();
+  const app = require('./app');
+  prisma = require('./lib/prisma');
+
+  try {
+    await ensureDatabaseConnection({
+      retries: 6,
+      delayMs: 5000,
+    });
+    console.log(
+      `Database connection verified${env.databaseUrlSource ? ` via ${env.databaseUrlSource}` : ''}.`,
+    );
+  } catch (error) {
+    console.error(
+      'Database was not reachable during startup. The API will still boot and /api/health will report the current DB state.',
+    );
+    console.error(error.message || error);
+  }
 
   server = app.listen(env.port, env.host, () => {
     const printableHost = env.host === '0.0.0.0' ? 'localhost' : env.host;
@@ -20,7 +35,12 @@ async function startServer() {
 function shutdown(signal) {
   console.log(`\nReceived ${signal}, shutting down gracefully...`);
 
-  if (!server) {
+  if (!server || !prisma) {
+    if (!prisma) {
+      process.exit(0);
+      return;
+    }
+
     prisma.$disconnect().finally(() => process.exit(0));
     return;
   }
@@ -36,6 +56,8 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 startServer().catch(async (error) => {
   console.error('Failed to start backend.');
   console.error(error.message || error);
-  await prisma.$disconnect().catch(() => {});
+  if (prisma) {
+    await prisma.$disconnect().catch(() => {});
+  }
   process.exit(1);
 });

@@ -1,5 +1,4 @@
 const env = require('../config/env');
-const prisma = require('../lib/prisma');
 
 function hasPlaceholderDatabaseUrl(databaseUrl) {
   return (
@@ -16,7 +15,7 @@ function hasPlaceholderJwtSecret(jwtSecret) {
 function validateEnvironment() {
   if (hasPlaceholderDatabaseUrl(env.databaseUrl)) {
     throw new Error(
-      'DATABASE_URL في backend/.env ما زالت placeholder. ضع user/password الحقيقيين لـ MySQL.',
+      'Database URL is missing or still placeholder. Set DATABASE_URL, MYSQL_URL, or Railway MySQL variables.',
     );
   }
 
@@ -33,9 +32,36 @@ function validateEnvironment() {
   }
 }
 
-async function ensureDatabaseConnection() {
-  await prisma.$connect();
-  await prisma.$queryRawUnsafe('SELECT 1 AS ok');
+function wait(delayMs) {
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
+async function ensureDatabaseConnection(options = {}) {
+  const prisma = require('../lib/prisma');
+  const retries = options.retries ?? 5;
+  const delayMs = options.delayMs ?? 3000;
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt += 1) {
+    try {
+      await prisma.$connect();
+      await prisma.$queryRawUnsafe('SELECT 1 AS ok');
+      return;
+    } catch (error) {
+      lastError = error;
+      const isLastAttempt = attempt === retries;
+      console.error(
+        `Database connection attempt ${attempt}/${retries} failed: ${error.message || error}`,
+      );
+      await prisma.$disconnect().catch(() => {});
+
+      if (!isLastAttempt) {
+        await wait(delayMs);
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 module.exports = {
