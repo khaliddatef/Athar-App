@@ -12,11 +12,6 @@ function createPrismaClient() {
 
   return new PrismaClient({
     log: ['error', 'warn'],
-    datasources: {
-      db: {
-        url: env.databaseUrl,
-      },
-    },
   });
 }
 
