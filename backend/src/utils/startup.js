@@ -1,4 +1,8 @@
 const env = require('../config/env');
+const {
+  verifyDatabaseConnection,
+  verifyDatabaseSchema,
+} = require('./database-readiness');
 
 function hasPlaceholderDatabaseUrl(databaseUrl) {
   return (
@@ -36,7 +40,7 @@ function wait(delayMs) {
   return new Promise((resolve) => setTimeout(resolve, delayMs));
 }
 
-async function ensureDatabaseConnection(options = {}) {
+async function ensureDatabaseReadiness(options = {}) {
   const prisma = require('../lib/prisma');
   const retries = options.retries ?? 5;
   const delayMs = options.delayMs ?? 3000;
@@ -45,13 +49,14 @@ async function ensureDatabaseConnection(options = {}) {
   for (let attempt = 1; attempt <= retries; attempt += 1) {
     try {
       await prisma.$connect();
-      await prisma.$queryRawUnsafe('SELECT 1 AS ok');
+      await verifyDatabaseConnection(prisma);
+      await verifyDatabaseSchema(prisma);
       return;
     } catch (error) {
       lastError = error;
       const isLastAttempt = attempt === retries;
       console.error(
-        `Database connection attempt ${attempt}/${retries} failed: ${error.message || error}`,
+        `Database readiness attempt ${attempt}/${retries} failed: ${error.message || error}`,
       );
       await prisma.$disconnect().catch(() => {});
 
@@ -65,6 +70,6 @@ async function ensureDatabaseConnection(options = {}) {
 }
 
 module.exports = {
-  ensureDatabaseConnection,
+  ensureDatabaseReadiness,
   validateEnvironment,
 };

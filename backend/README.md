@@ -9,9 +9,11 @@ cd backend
 cp .env.example .env
 npm install
 npm run prisma:generate
-npm run prisma:push
+npm run prisma:migrate
 npm run dev
 ```
+
+Production uses committed migrations from `prisma/migrations` via `npm run prisma:deploy`.
 
 ## Required env
 

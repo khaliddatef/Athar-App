@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const env = require('./config/env');
-const { ensureDatabaseConnection, validateEnvironment } = require('./utils/startup');
+const { ensureDatabaseReadiness, validateEnvironment } = require('./utils/startup');
 
 let server;
 let prisma;
@@ -12,16 +12,16 @@ async function startServer() {
   prisma = require('./lib/prisma');
 
   try {
-    await ensureDatabaseConnection({
+    await ensureDatabaseReadiness({
       retries: 6,
       delayMs: 5000,
     });
     console.log(
-      `Database connection verified${env.databaseUrlSource ? ` via ${env.databaseUrlSource}` : ''}.`,
+      `Database connection and schema verified${env.databaseUrlSource ? ` via ${env.databaseUrlSource}` : ''}.`,
     );
   } catch (error) {
     console.error(
-      'Database was not reachable during startup. The API will still boot and /api/health will report the current DB state.',
+      'Database was not fully ready during startup. The API will still boot and /api/health will report the current DB/schema state.',
     );
     console.error(error.message || error);
   }
