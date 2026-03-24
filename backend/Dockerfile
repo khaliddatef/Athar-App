@@ -11,4 +11,4 @@ RUN npx prisma generate
 COPY backend/src ./src
 COPY backend/README.md ./README.md
 EXPOSE 3000
-CMD ["npx", "prisma", "migrate", "deploy", "&&", "node", "src/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]
