@@ -1,9 +1,12 @@
 const prisma = require('../lib/prisma');
 const AppError = require('../utils/app-error');
+const { syncVolunteerBadges } = require('./reward.service');
+const { syncTaskStatusFromAssignments } = require('./task-assignment.service');
 const {
   serializePagination,
   serializeVolunteerSummary,
 } = require('../utils/serializers');
+const { calculateTaskDurationHours } = require('../utils/task-metrics');
 const {
   parsePositiveInteger,
   validateReportCreatePayload,
@@ -17,6 +20,7 @@ const volunteerSummarySelect = {
   nationalId: true,
   email: true,
   phone: true,
+  avatarUrl: true,
   status: true,
 };
 
@@ -56,6 +60,7 @@ function serializeReport(report) {
     voiceNote: report.voiceNote,
     images: Array.isArray(report.images) ? report.images : [],
     rating: report.rating,
+    pointsAwarded: report.pointsAwarded ?? 0,
     createdAt: report.createdAt?.toISOString() ?? null,
     volunteer: serializeVolunteerSummary(report.volunteer),
     task: report.task
@@ -176,6 +181,20 @@ async function getReportById(reportId, volunteerId) {
 
 async function createReport(payload, volunteerId) {
   const validatedPayload = validateReportCreatePayload(payload);
+  const existingReport = await prisma.report.findFirst({
+    where: {
+      volunteerId,
+      taskId: validatedPayload.taskId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingReport) {
+    throw new AppError('تم إرسال تقرير لهذه المهمة من قبل', 409);
+  }
+
   const task = await prisma.task.findUnique({
     where: {
       id: validatedPayload.taskId,
@@ -184,7 +203,10 @@ async function createReport(payload, volunteerId) {
       campaign: {
         select: {
           id: true,
+          title: true,
+          status: true,
           createdById: true,
+          reportPoints: true,
         },
       },
       volunteerTasks: {
@@ -210,22 +232,119 @@ async function createReport(payload, volunteerId) {
     throw new AppError('يجب أن تكون مسندًا لهذه المهمة أو منشئ الحملة لإنشاء تقرير', 403);
   }
 
-  const report = await prisma.report.create({
-    data: {
+  const assignment = task.volunteerTasks?.[0] || null;
+  const pointsAwarded = task.campaign.reportPoints || 0;
+
+  if (assignment && assignment.status === 'CANCELLED') {
+    throw new AppError('لا يمكن إرسال تقرير لمهمة تم إلغاؤها لك', 400);
+  }
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const report = await transactionClient.report.create({
+      data: {
+        volunteerId,
+        taskId: task.id,
+        campaignId: task.campaignId,
+        notes: validatedPayload.notes,
+        voiceNote: validatedPayload.voiceNote,
+        images: validatedPayload.images || [],
+        rating: validatedPayload.rating,
+        pointsAwarded,
+      },
+      include: reportInclude,
+    });
+
+    let hoursAdded = 0;
+
+    if (assignment) {
+      const plannedHours = assignment.hoursWorked || calculateTaskDurationHours(task);
+      hoursAdded = Math.max(0, plannedHours - assignment.hoursWorked);
+
+      await transactionClient.volunteerTask.update({
+        where: {
+          volunteerId_taskId: {
+            volunteerId,
+            taskId: task.id,
+          },
+        },
+        data: {
+          status: 'COMPLETED',
+          checkOutTime: assignment.checkOutTime || new Date(),
+          hoursWorked: assignment.hoursWorked || plannedHours,
+        },
+      });
+
+      await syncTaskStatusFromAssignments(transactionClient, task.id);
+
+      const volunteer = await transactionClient.volunteer.update({
+        where: {
+          id: volunteerId,
+        },
+        data: {
+          points: {
+            increment: pointsAwarded,
+          },
+          totalHours: {
+            increment: hoursAdded,
+          },
+        },
+        select: {
+          points: true,
+          totalHours: true,
+        },
+      });
+
+      const newlyAwardedBadges = await syncVolunteerBadges(
+        transactionClient,
+        volunteerId,
+      );
+
+      return {
+        report,
+        hoursAdded,
+        volunteer,
+        newlyAwardedBadges,
+      };
+    }
+
+    const volunteer = await transactionClient.volunteer.update({
+      where: {
+        id: volunteerId,
+      },
+      data: {
+        points: {
+          increment: pointsAwarded,
+        },
+      },
+      select: {
+        points: true,
+        totalHours: true,
+      },
+    });
+
+    const newlyAwardedBadges = await syncVolunteerBadges(
+      transactionClient,
       volunteerId,
-      taskId: task.id,
-      campaignId: task.campaignId,
-      notes: validatedPayload.notes,
-      voiceNote: validatedPayload.voiceNote,
-      images: validatedPayload.images || [],
-      rating: validatedPayload.rating,
-    },
-    include: reportInclude,
+    );
+
+    return {
+      report,
+      hoursAdded,
+      volunteer,
+      newlyAwardedBadges,
+    };
   });
 
   return {
     message: 'تم إنشاء التقرير بنجاح',
-    report: serializeReport(report),
+    report: serializeReport(result.report),
+    summary: {
+      pointsAwarded,
+      hoursAdded: result.hoursAdded,
+      totalPoints: result.volunteer.points,
+      totalHours: result.volunteer.totalHours,
+      newlyAwardedBadges: result.newlyAwardedBadges,
+    },
   };
 }
 

@@ -1,10 +1,12 @@
 const prisma = require('../lib/prisma');
 const AppError = require('../utils/app-error');
+const { buildDistanceContext } = require('../utils/geolocation');
 const {
   serializeLocation,
   serializePagination,
   serializeVolunteerSummary,
 } = require('../utils/serializers');
+const { getTaskAttendanceRadius } = require('../utils/task-metrics');
 const {
   parsePositiveInteger,
   validateTaskAssignmentCreatePayload,
@@ -14,6 +16,7 @@ const {
   validateTaskUpdatePayload,
 } = require('../validators/resource.validators');
 const { resolveLocationInput } = require('./location.service');
+const { syncTaskStatusFromAssignments } = require('./task-assignment.service');
 
 const volunteerSummarySelect = {
   id: true,
@@ -21,6 +24,7 @@ const volunteerSummarySelect = {
   nationalId: true,
   email: true,
   phone: true,
+  avatarUrl: true,
   status: true,
 };
 
@@ -41,6 +45,7 @@ function serializeAssignment(assignment) {
     checkInTime: assignment.checkInTime?.toISOString() ?? null,
     checkOutTime: assignment.checkOutTime?.toISOString() ?? null,
     hoursWorked: assignment.hoursWorked,
+    attendancePointsAwarded: assignment.attendancePointsAwarded ?? 0,
     volunteer: serializeVolunteerSummary(assignment.volunteer),
   };
 }
@@ -54,6 +59,10 @@ function buildTaskInclude(options = {}) {
         title: true,
         status: true,
         createdById: true,
+        coverImage: true,
+        attendanceRadiusMeters: true,
+        attendancePoints: true,
+        reportPoints: true,
       },
     },
     _count: {
@@ -91,11 +100,15 @@ function buildTaskInclude(options = {}) {
 function serializeTask(task, options = {}) {
   const includeAssignments = options.includeAssignments ?? false;
   const currentVolunteerId = options.currentVolunteerId ?? null;
+  const viewerCoordinates = options.viewerCoordinates ?? null;
   const assignments = Array.isArray(task.volunteerTasks) ? task.volunteerTasks : [];
   const myAssignment =
     currentVolunteerId !== null
       ? assignments.find((assignment) => assignment.volunteerId === currentVolunteerId) || null
       : null;
+  const location = serializeLocation(task.location);
+  const attendanceRadiusMeters = getTaskAttendanceRadius(task);
+  const distance = buildDistanceContext(location, viewerCoordinates, attendanceRadiusMeters);
 
   return {
     id: task.id,
@@ -111,12 +124,26 @@ function serializeTask(task, options = {}) {
           title: task.campaign.title,
           status: task.campaign.status,
           createdById: task.campaign.createdById,
+          coverImage: task.campaign.coverImage ?? null,
         }
       : null,
-    location: serializeLocation(task.location),
+    location,
     stats: {
       assignments: task._count?.volunteerTasks ?? assignments.length,
       reports: task._count?.reports ?? 0,
+    },
+    attendance: {
+      radiusMeters: attendanceRadiusMeters,
+      pointsOnCheckIn: task.campaign?.attendancePoints ?? 0,
+      pointsOnReport: task.campaign?.reportPoints ?? 0,
+      distanceMeters: distance.distanceMeters,
+      isWithinRange: distance.isWithinRange,
+      canCheckIn: myAssignment
+        ? ['ASSIGNED', 'CHECKED_OUT'].includes(myAssignment.status)
+        : false,
+      canSubmitReport: myAssignment
+        ? ['CHECKED_IN', 'CHECKED_OUT', 'COMPLETED'].includes(myAssignment.status)
+        : false,
     },
     myAssignment: myAssignment ? serializeAssignment(myAssignment) : null,
     assignments: includeAssignments ? assignments.map(serializeAssignment) : undefined,
@@ -179,64 +206,6 @@ function ensureTaskDateWithinCampaign(taskDate, campaign) {
   }
 }
 
-async function syncTaskStatusFromAssignments(transactionClient, taskId) {
-  const task = await transactionClient.task.findUnique({
-    where: {
-      id: taskId,
-    },
-    select: {
-      status: true,
-    },
-  });
-
-  if (!task || task.status === 'CANCELLED') {
-    return;
-  }
-
-  const assignments = await transactionClient.volunteerTask.findMany({
-    where: {
-      taskId,
-    },
-    select: {
-      status: true,
-    },
-  });
-
-  let nextStatus = 'OPEN';
-
-  if (assignments.length > 0) {
-    const allAssignmentsClosed = assignments.every((assignment) =>
-      ['COMPLETED', 'CANCELLED'].includes(assignment.status),
-    );
-
-    if (
-      allAssignmentsClosed &&
-      assignments.some((assignment) => assignment.status === 'COMPLETED')
-    ) {
-      nextStatus = 'COMPLETED';
-    } else if (
-      assignments.some((assignment) =>
-        ['CHECKED_IN', 'CHECKED_OUT', 'COMPLETED'].includes(assignment.status),
-      )
-    ) {
-      nextStatus = 'IN_PROGRESS';
-    } else {
-      nextStatus = 'ASSIGNED';
-    }
-  }
-
-  if (task.status !== nextStatus) {
-    await transactionClient.task.update({
-      where: {
-        id: taskId,
-      },
-      data: {
-        status: nextStatus,
-      },
-    });
-  }
-}
-
 async function listTasks(query, volunteerId) {
   const filters = validateTaskListQuery(query);
   const where = {};
@@ -251,6 +220,17 @@ async function listTasks(query, volunteerId) {
 
   if (filters.status) {
     where.status = filters.status;
+  }
+
+  if (filters.date) {
+    where.date = filters.date;
+  }
+
+  if (filters.fromDate || filters.toDate) {
+    where.date = {
+      ...(filters.fromDate ? { gte: filters.fromDate } : {}),
+      ...(filters.toDate ? { lte: filters.toDate } : {}),
+    };
   }
 
   if (filters.assignedToMe || query.mine === 'true') {
@@ -289,13 +269,18 @@ async function listTasks(query, volunteerId) {
     tasks: tasks.map((task) =>
       serializeTask(task, {
         currentVolunteerId: volunteerId,
+        viewerCoordinates: filters.coordinates,
       }),
     ),
   };
 }
 
-async function getTaskById(taskId, volunteerId) {
+async function getTaskById(taskId, volunteerId, query = {}) {
   const parsedTaskId = parsePositiveInteger(taskId, 'معرف المهمة');
+  const filters = validateTaskListQuery({
+    latitude: query.latitude,
+    longitude: query.longitude,
+  });
   const task = await getTaskOrThrow(parsedTaskId, {
     currentVolunteerId: volunteerId,
     includeAssignments: true,
@@ -306,6 +291,7 @@ async function getTaskById(taskId, volunteerId) {
     task: serializeTask(task, {
       currentVolunteerId: volunteerId,
       includeAssignments: true,
+      viewerCoordinates: filters.coordinates,
     }),
   };
 }
@@ -333,6 +319,7 @@ async function createTask(payload, volunteerId) {
         date: validatedPayload.date,
         startTime: validatedPayload.startTime,
         endTime: validatedPayload.endTime,
+        attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
         status: validatedPayload.status,
         locationId,
       },
@@ -384,6 +371,7 @@ async function updateTask(taskId, payload, volunteerId) {
       date: validatedPayload.date,
       startTime: validatedPayload.startTime,
       endTime: validatedPayload.endTime,
+      attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
       status: validatedPayload.status,
     };
 

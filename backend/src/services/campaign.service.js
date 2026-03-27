@@ -1,11 +1,13 @@
 const prisma = require('../lib/prisma');
 const AppError = require('../utils/app-error');
+const { buildDistanceContext } = require('../utils/geolocation');
 const {
   serializeLocation,
   serializePagination,
   serializeVolunteerSummary,
 } = require('../utils/serializers');
 const {
+  parseCoordinatesQuery,
   parsePositiveInteger,
   validateCampaignCreatePayload,
   validateCampaignListQuery,
@@ -19,6 +21,7 @@ const volunteerSummarySelect = {
   nationalId: true,
   email: true,
   phone: true,
+  avatarUrl: true,
   status: true,
 };
 
@@ -40,21 +43,72 @@ function formatDateOnly(value) {
   return value ? new Date(value).toISOString().slice(0, 10) : null;
 }
 
-function serializeCampaign(campaign) {
+function formatTimeOnly(value) {
+  return value ? new Date(value).toISOString().slice(11, 19) : null;
+}
+
+function serializeCampaignTaskSummary(task, currentVolunteerId) {
+  if (!task) {
+    return null;
+  }
+
+  const myAssignment =
+    Array.isArray(task.volunteerTasks) && currentVolunteerId
+      ? task.volunteerTasks.find((assignment) => assignment.volunteerId === currentVolunteerId) ||
+        null
+      : null;
+
+  return {
+    id: task.id,
+    title: task.title,
+    date: formatDateOnly(task.date),
+    startTime: formatTimeOnly(task.startTime),
+    endTime: formatTimeOnly(task.endTime),
+    status: task.status,
+    location: serializeLocation(task.location),
+    myAssignment: myAssignment
+      ? {
+          status: myAssignment.status,
+          checkInTime: myAssignment.checkInTime?.toISOString() ?? null,
+        }
+      : null,
+  };
+}
+
+function serializeCampaign(campaign, options = {}) {
+  const location = serializeLocation(campaign.location);
+  const attendance = buildDistanceContext(
+    location,
+    options.viewerCoordinates ?? null,
+    campaign.attendanceRadiusMeters,
+  );
+
   return {
     id: campaign.id,
     title: campaign.title,
     description: campaign.description,
+    coverImage: campaign.coverImage ?? null,
     startDate: formatDateOnly(campaign.startDate),
     endDate: formatDateOnly(campaign.endDate),
     status: campaign.status,
-    location: serializeLocation(campaign.location),
+    location,
     createdBy: serializeVolunteerSummary(campaign.createdBy),
+    attendance: {
+      radiusMeters: campaign.attendanceRadiusMeters,
+      pointsOnCheckIn: campaign.attendancePoints,
+      pointsOnReport: campaign.reportPoints,
+      distanceMeters: attendance.distanceMeters,
+      isWithinRange: attendance.isWithinRange,
+    },
     stats: {
       tasks: campaign._count?.tasks ?? 0,
       reports: campaign._count?.reports ?? 0,
       ratings: campaign._count?.ratings ?? 0,
+      registeredVolunteers: options.registeredVolunteers ?? 0,
     },
+    nextTask: options.nextTask
+      ? serializeCampaignTaskSummary(options.nextTask, options.currentVolunteerId)
+      : null,
   };
 }
 
@@ -120,13 +174,50 @@ async function listCampaigns(query, volunteerId) {
   };
 }
 
-async function getCampaignById(campaignId) {
+async function getCampaignById(campaignId, volunteerId, query = {}) {
   const parsedCampaignId = parsePositiveInteger(campaignId, 'معرف الحملة');
+  const viewerCoordinates = parseCoordinatesQuery(query);
   const campaign = await getCampaignOrThrow(parsedCampaignId);
+  const [registeredVolunteers, nextTask] = await Promise.all([
+    prisma.volunteerTask.findMany({
+      where: {
+        task: {
+          campaignId: parsedCampaignId,
+        },
+      },
+      distinct: ['volunteerId'],
+      select: {
+        volunteerId: true,
+      },
+    }),
+    prisma.task.findFirst({
+      where: {
+        campaignId: parsedCampaignId,
+      },
+      include: {
+        location: true,
+        volunteerTasks: {
+          where: {
+            volunteerId,
+          },
+        },
+      },
+      orderBy: [
+        { date: 'asc' },
+        { startTime: 'asc' },
+        { id: 'asc' },
+      ],
+    }),
+  ]);
 
   return {
     message: 'تم جلب بيانات الحملة بنجاح',
-    campaign: serializeCampaign(campaign),
+    campaign: serializeCampaign(campaign, {
+      currentVolunteerId: volunteerId,
+      nextTask,
+      registeredVolunteers: registeredVolunteers.length,
+      viewerCoordinates,
+    }),
   };
 }
 
@@ -140,9 +231,13 @@ async function createCampaign(payload, volunteerId) {
       data: {
         title: validatedPayload.title,
         description: validatedPayload.description,
+        coverImage: validatedPayload.coverImage,
         startDate: validatedPayload.startDate,
         endDate: validatedPayload.endDate,
         status: validatedPayload.status,
+        attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
+        attendancePoints: validatedPayload.attendancePoints,
+        reportPoints: validatedPayload.reportPoints,
         locationId,
         createdById: volunteerId,
       },
@@ -178,9 +273,13 @@ async function updateCampaign(campaignId, payload, volunteerId) {
     const data = {
       title: validatedPayload.title,
       description: validatedPayload.description,
+      coverImage: validatedPayload.coverImage,
       startDate: validatedPayload.startDate,
       endDate: validatedPayload.endDate,
       status: validatedPayload.status,
+      attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
+      attendancePoints: validatedPayload.attendancePoints,
+      reportPoints: validatedPayload.reportPoints,
     };
 
     if (validatedPayload.locationId || validatedPayload.location) {

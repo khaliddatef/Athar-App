@@ -37,6 +37,10 @@
     {
       "key": "sosRequestId",
       "value": "1"
+    },
+    {
+      "key": "postId",
+      "value": "1"
     }
   ],
   "item": [
@@ -215,6 +219,286 @@
       ]
     },
     {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Get Home Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/home",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "home"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Announcements",
+      "item": [
+        {
+          "name": "List Announcements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/announcements?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "announcements"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Get Attendance Preview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/attendance/tasks/{{taskId}}/preview?latitude=30.0444&longitude=31.2357",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "tasks",
+                "{{taskId}}",
+                "preview"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "longitude",
+                  "value": "31.2357"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check In To Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/attendance/tasks/{{taskId}}/check-in",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "attendance",
+                "tasks",
+                "{{taskId}}",
+                "check-in"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 30.0444,\n  \"longitude\": 31.2357\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "item": [
+        {
+          "name": "Get Community Feed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/feed?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "feed"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Community Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/posts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "posts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"حملة النهارده كانت ممتازة ووصلنا لعدد كبير من الأسر المحتاجة.\",\n  \"image\": \"https://example.com/community-post.jpg\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Toggle Community Post Like",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/posts/{{postId}}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "posts",
+                "{{postId}}",
+                "like"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Community Post Comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/posts/{{postId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "posts",
+                "{{postId}}",
+                "comments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Community Post Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/posts/{{postId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "posts",
+                "{{postId}}",
+                "comments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"مجهود رائع، ربنا يبارك فيكم.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Campaigns",
       "item": [
         {
@@ -264,7 +548,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"حملة توزيع مساعدات الجيزة\",\n  \"description\": \"حملة لتوزيع المساعدات الغذائية على الأسر الأكثر احتياجًا في الجيزة.\",\n  \"startDate\": \"2026-03-25\",\n  \"endDate\": \"2026-03-27\",\n  \"status\": \"PUBLISHED\",\n  \"location\": {\n    \"name\": \"مخزن الدقي\",\n    \"latitude\": 30.0385,\n    \"longitude\": 31.2101,\n    \"city\": \"الجيزة\",\n    \"area\": \"الدقي\"\n  }\n}"
+              "raw": "{\n  \"title\": \"حملة توزيع مساعدات الجيزة\",\n  \"description\": \"حملة لتوزيع المساعدات الغذائية على الأسر الأكثر احتياجًا في الجيزة.\",\n  \"coverImage\": \"https://example.com/campaign-cover.jpg\",\n  \"startDate\": \"2026-03-25\",\n  \"endDate\": \"2026-03-27\",\n  \"status\": \"PUBLISHED\",\n  \"attendanceRadiusMeters\": 120,\n  \"attendancePoints\": 50,\n  \"reportPoints\": 50,\n  \"location\": {\n    \"name\": \"مخزن الدقي\",\n    \"latitude\": 30.0385,\n    \"longitude\": 31.2101,\n    \"city\": \"الجيزة\",\n    \"area\": \"الدقي\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/campaigns",
@@ -288,13 +572,23 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/campaigns/{{campaignId}}",
+              "raw": "{{baseUrl}}/campaigns/{{campaignId}}?latitude=30.0444&longitude=31.2357",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "campaigns",
                 "{{campaignId}}"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "longitude",
+                  "value": "31.2357"
+                }
               ]
             }
           }
@@ -315,7 +609,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+              "raw": "{\n  \"status\": \"ACTIVE\",\n  \"attendanceRadiusMeters\": 150\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/campaigns/{{campaignId}}",
@@ -345,7 +639,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/tasks?page=1&limit=20",
+              "raw": "{{baseUrl}}/tasks?page=1&limit=20&mine=true&date=2026-03-25&latitude=30.0444&longitude=31.2357",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -360,6 +654,22 @@
                 {
                   "key": "limit",
                   "value": "20"
+                },
+                {
+                  "key": "mine",
+                  "value": "true"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-03-25"
+                },
+                {
+                  "key": "latitude",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "longitude",
+                  "value": "31.2357"
                 }
               ]
             }
@@ -381,7 +691,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"تجهيز صناديق المساعدات\",\n  \"description\": \"تجهيز وفرز صناديق المساعدات قبل النزول الميداني.\",\n  \"campaignId\": {{campaignId}},\n  \"date\": \"2026-03-25\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"13:00\",\n  \"status\": \"OPEN\"\n}"
+              "raw": "{\n  \"title\": \"تجهيز صناديق المساعدات\",\n  \"description\": \"تجهيز وفرز صناديق المساعدات قبل النزول الميداني.\",\n  \"campaignId\": {{campaignId}},\n  \"date\": \"2026-03-25\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"13:00\",\n  \"attendanceRadiusMeters\": 120,\n  \"status\": \"OPEN\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/tasks",
@@ -405,13 +715,23 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "raw": "{{baseUrl}}/tasks/{{taskId}}?latitude=30.0444&longitude=31.2357",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "tasks",
                 "{{taskId}}"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "30.0444"
+                },
+                {
+                  "key": "longitude",
+                  "value": "31.2357"
+                }
               ]
             }
           }

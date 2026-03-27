@@ -43,10 +43,14 @@ app.get('/', (req, res) => {
       logout: '/api/auth/logout',
       profile: '/api/auth/me',
       logoutAll: '/api/auth/logout-all',
+      home: '/api/home',
+      announcements: '/api/announcements',
+      attendance: '/api/attendance',
       campaigns: '/api/campaigns',
       tasks: '/api/tasks',
       reports: '/api/reports',
       sosRequests: '/api/sos-requests',
+      community: '/api/community',
     },
   });
 });

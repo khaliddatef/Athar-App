@@ -29,6 +29,7 @@ function sanitizeUser(user) {
     nationalId: user.nationalId,
     email: user.email,
     phone: user.phone,
+    avatarUrl: user.avatarUrl ?? null,
     gender: user.gender,
     dateOfBirth: user.dateOfBirth,
     city: user.city,

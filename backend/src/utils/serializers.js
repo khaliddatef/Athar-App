@@ -23,6 +23,7 @@ function serializeVolunteerSummary(volunteer) {
     nationalId: volunteer.nationalId,
     email: volunteer.email,
     phone: volunteer.phone,
+    avatarUrl: volunteer.avatarUrl ?? null,
     status: volunteer.status,
   };
 }
@@ -51,8 +52,22 @@ function serializePagination(page, limit, total) {
   };
 }
 
+function serializeBadge(badge) {
+  if (!badge) {
+    return null;
+  }
+
+  return {
+    id: badge.id,
+    name: badge.name,
+    description: badge.description,
+    pointsRequired: badge.pointsRequired,
+  };
+}
+
 module.exports = {
   decimalToNumber,
+  serializeBadge,
   serializeLocation,
   serializePagination,
   serializeVolunteerSummary,

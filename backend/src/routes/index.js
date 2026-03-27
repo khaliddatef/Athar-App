@@ -7,7 +7,11 @@ const {
   verifyDatabaseSchema,
 } = require('../utils/database-readiness');
 const authRoutes = require('./auth.routes');
+const announcementRoutes = require('./announcement.routes');
+const attendanceRoutes = require('./attendance.routes');
 const campaignRoutes = require('./campaign.routes');
+const communityRoutes = require('./community.routes');
+const homeRoutes = require('./home.routes');
 const reportRoutes = require('./report.routes');
 const sosRequestRoutes = require('./sos-request.routes');
 const taskRoutes = require('./task.routes');
@@ -61,9 +65,13 @@ router.get('/health', async (req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/home', homeRoutes);
+router.use('/announcements', announcementRoutes);
+router.use('/attendance', attendanceRoutes);
 router.use('/campaigns', campaignRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/reports', reportRoutes);
 router.use('/sos-requests', sosRequestRoutes);
+router.use('/community', communityRoutes);
 
 module.exports = router;

@@ -11,7 +11,11 @@ const listCampaigns = asyncHandler(async (req, res) => {
 });
 
 const getCampaignById = asyncHandler(async (req, res) => {
-  const result = await campaignService.getCampaignById(req.params.campaignId);
+  const result = await campaignService.getCampaignById(
+    req.params.campaignId,
+    req.user.id,
+    req.query,
+  );
 
   res.status(200).json({
     success: true,

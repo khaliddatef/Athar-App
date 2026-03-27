@@ -31,6 +31,8 @@ const SOS_REQUEST_STATUSES = [
   'CANCELLED',
 ];
 
+const ANNOUNCEMENT_SORT_FIELDS = ['CREATEDAT'];
+
 function hasOwn(object, key) {
   return Object.prototype.hasOwnProperty.call(object, key);
 }
@@ -273,6 +275,47 @@ function parseLongitude(value) {
   return parsedValue;
 }
 
+function parseOptionalLatitude(value) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return parseLatitude(value);
+}
+
+function parseOptionalLongitude(value) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return parseLongitude(value);
+}
+
+function parseCoordinatesQuery(query = {}) {
+  const latitude = parseOptionalLatitude(query.latitude);
+  const longitude = parseOptionalLongitude(query.longitude);
+
+  if ((latitude === undefined) !== (longitude === undefined)) {
+    throw new AppError('يجب إرسال latitude و longitude معًا', 400);
+  }
+
+  if (latitude === undefined || longitude === undefined) {
+    return null;
+  }
+
+  return {
+    latitude,
+    longitude,
+  };
+}
+
+function validateCoordinatesPayload(payload = {}) {
+  return {
+    latitude: parseLatitude(payload.latitude),
+    longitude: parseLongitude(payload.longitude),
+  };
+}
+
 function parseBooleanQuery(value) {
   if (value === undefined) {
     return undefined;
@@ -414,12 +457,22 @@ function validateCampaignCreatePayload(payload = {}) {
     description: parseRequiredText(payload.description, 'وصف الحملة', {
       minimumLength: 10,
     }),
+    coverImage: parseOptionalText(payload.coverImage, 'صورة الحملة', {
+      maximumLength: 2048,
+    }),
     startDate,
     endDate,
     status:
       parseEnumValue(payload.status, 'حالة الحملة', CAMPAIGN_STATUSES, {
         required: false,
       }) || 'DRAFT',
+    attendanceRadiusMeters:
+      parseOptionalNonNegativeInteger(payload.attendanceRadiusMeters, 'نطاق الحضور بالمتر') ??
+      100,
+    attendancePoints:
+      parseOptionalNonNegativeInteger(payload.attendancePoints, 'نقاط تسجيل الحضور') ?? 50,
+    reportPoints:
+      parseOptionalNonNegativeInteger(payload.reportPoints, 'نقاط تسليم التقرير') ?? 50,
     ...validateLocationReference(payload),
   };
 }
@@ -437,6 +490,12 @@ function validateCampaignUpdatePayload(payload = {}) {
     });
   }
 
+  if (hasOwn(payload, 'coverImage')) {
+    data.coverImage = parseOptionalText(payload.coverImage, 'صورة الحملة', {
+      maximumLength: 2048,
+    });
+  }
+
   if (hasOwn(payload, 'startDate')) {
     data.startDate = parseDateOnly(payload.startDate, 'تاريخ بداية الحملة');
   }
@@ -447,6 +506,27 @@ function validateCampaignUpdatePayload(payload = {}) {
 
   if (hasOwn(payload, 'status')) {
     data.status = parseEnumValue(payload.status, 'حالة الحملة', CAMPAIGN_STATUSES);
+  }
+
+  if (hasOwn(payload, 'attendanceRadiusMeters')) {
+    data.attendanceRadiusMeters = parseOptionalNonNegativeInteger(
+      payload.attendanceRadiusMeters,
+      'نطاق الحضور بالمتر',
+    );
+  }
+
+  if (hasOwn(payload, 'attendancePoints')) {
+    data.attendancePoints = parseOptionalNonNegativeInteger(
+      payload.attendancePoints,
+      'نقاط تسجيل الحضور',
+    );
+  }
+
+  if (hasOwn(payload, 'reportPoints')) {
+    data.reportPoints = parseOptionalNonNegativeInteger(
+      payload.reportPoints,
+      'نقاط تسليم التقرير',
+    );
   }
 
   if (hasOwn(payload, 'locationId') || hasOwn(payload, 'location')) {
@@ -489,6 +569,10 @@ function validateTaskCreatePayload(payload = {}) {
     date,
     startTime: startTime || null,
     endTime: endTime || null,
+    attendanceRadiusMeters: parseOptionalNonNegativeInteger(
+      payload.attendanceRadiusMeters,
+      'نطاق الحضور بالمتر',
+    ),
     status:
       parseEnumValue(payload.status, 'حالة المهمة', TASK_STATUSES, {
         required: false,
@@ -525,6 +609,13 @@ function validateTaskUpdatePayload(payload = {}) {
     data.status = parseEnumValue(payload.status, 'حالة المهمة', TASK_STATUSES);
   }
 
+  if (hasOwn(payload, 'attendanceRadiusMeters')) {
+    data.attendanceRadiusMeters = parseOptionalNonNegativeInteger(
+      payload.attendanceRadiusMeters,
+      'نطاق الحضور بالمتر',
+    );
+  }
+
   if (hasOwn(payload, 'locationId') || hasOwn(payload, 'location')) {
     Object.assign(data, validateLocationReference(payload, { required: false }));
   }
@@ -540,10 +631,14 @@ function validateTaskListQuery(query = {}) {
     campaignId: parsePositiveInteger(query.campaignId, 'الحملة', { required: false }),
     locationId: parsePositiveInteger(query.locationId, 'الموقع', { required: false }),
     volunteerId: parsePositiveInteger(query.volunteerId, 'المتطوع', { required: false }),
+    date: parseDateOnly(query.date, 'تاريخ المهمة', { required: false }),
+    fromDate: parseDateOnly(query.fromDate, 'من تاريخ المهمة', { required: false }),
+    toDate: parseDateOnly(query.toDate, 'إلى تاريخ المهمة', { required: false }),
     status: parseEnumValue(query.status, 'حالة المهمة', TASK_STATUSES, {
       required: false,
     }),
     assignedToMe: parseBooleanQuery(query.assignedToMe),
+    coordinates: parseCoordinatesQuery(query),
   };
 }
 
@@ -677,16 +772,73 @@ function validateSosRequestListQuery(query = {}) {
   };
 }
 
+function validateAttendancePreviewQuery(query = {}) {
+  return {
+    coordinates: parseCoordinatesQuery(query),
+  };
+}
+
+function validateAttendanceCheckInPayload(payload = {}) {
+  return {
+    ...validateCoordinatesPayload(payload),
+  };
+}
+
+function validateAnnouncementListQuery(query = {}) {
+  return {
+    ...parsePaginationQuery(query),
+    pinnedOnly: parseBooleanQuery(query.pinnedOnly),
+    sortBy:
+      parseEnumValue(query.sortBy, 'ترتيب الإعلانات', ANNOUNCEMENT_SORT_FIELDS, {
+        required: false,
+      }) || 'CREATEDAT',
+  };
+}
+
+function validateCommunityPostCreatePayload(payload = {}) {
+  return {
+    content: parseRequiredText(payload.content, 'محتوى المنشور', {
+      minimumLength: 3,
+      maximumLength: 5000,
+    }),
+    image: parseOptionalText(payload.image, 'صورة المنشور', {
+      maximumLength: 2048,
+    }),
+  };
+}
+
+function validateCommunityCommentCreatePayload(payload = {}) {
+  return {
+    content: parseRequiredText(payload.content, 'محتوى التعليق', {
+      minimumLength: 1,
+      maximumLength: 2000,
+    }),
+  };
+}
+
+function validateCommunityFeedQuery(query = {}) {
+  return parsePaginationQuery(query);
+}
+
 module.exports = {
+  ANNOUNCEMENT_SORT_FIELDS,
   CAMPAIGN_STATUSES,
   SOS_REQUEST_STATUSES,
   TASK_STATUSES,
   VOLUNTEER_TASK_STATUSES,
   hasOwn,
+  parseCoordinatesQuery,
   parsePositiveInteger,
+  validateAnnouncementListQuery,
+  validateAttendanceCheckInPayload,
+  validateAttendancePreviewQuery,
   validateCampaignCreatePayload,
   validateCampaignListQuery,
   validateCampaignUpdatePayload,
+  validateCommunityCommentCreatePayload,
+  validateCommunityFeedQuery,
+  validateCommunityPostCreatePayload,
+  validateCoordinatesPayload,
   validateLocationReference,
   validateReportCreatePayload,
   validateReportListQuery,

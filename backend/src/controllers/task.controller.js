@@ -11,7 +11,11 @@ const listTasks = asyncHandler(async (req, res) => {
 });
 
 const getTaskById = asyncHandler(async (req, res) => {
-  const result = await taskService.getTaskById(req.params.taskId, req.user.id);
+  const result = await taskService.getTaskById(
+    req.params.taskId,
+    req.user.id,
+    req.query,
+  );
 
   res.status(200).json({
     success: true,
