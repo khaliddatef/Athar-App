@@ -1,3 +1,5 @@
+const { buildAvatarUrl } = require('./profile-helpers');
+
 function decimalToNumber(value) {
   if (value === null || value === undefined) {
     return null;
@@ -23,7 +25,7 @@ function serializeVolunteerSummary(volunteer) {
     nationalId: volunteer.nationalId,
     email: volunteer.email,
     phone: volunteer.phone,
-    avatarUrl: volunteer.avatarUrl ?? null,
+    avatarUrl: buildAvatarUrl(volunteer),
     status: volunteer.status,
   };
 }

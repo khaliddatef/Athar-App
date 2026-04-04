@@ -15,6 +15,11 @@ const {
   validateRefreshTokenPayload,
   validateRegisterPayload,
 } = require('../validators/auth.validators');
+const {
+  buildAvatarUrl,
+  buildMemberSinceLabel,
+  buildStatusLabel,
+} = require('../utils/profile-helpers');
 
 const userCountSelection = {
   campaignsCreated: true,
@@ -29,12 +34,14 @@ function sanitizeUser(user) {
     nationalId: user.nationalId,
     email: user.email,
     phone: user.phone,
-    avatarUrl: user.avatarUrl ?? null,
+    avatarUrl: buildAvatarUrl(user),
     gender: user.gender,
     dateOfBirth: user.dateOfBirth,
     city: user.city,
     joinDate: user.joinDate,
+    memberSinceLabel: buildMemberSinceLabel(user.joinDate),
     status: user.status,
+    statusLabel: buildStatusLabel(user.status),
     totalHours: user.totalHours,
     points: user.points,
     createdAt: user.createdAt,

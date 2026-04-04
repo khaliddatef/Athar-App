@@ -42,6 +42,8 @@ app.get('/', (req, res) => {
       refresh: '/api/auth/refresh',
       logout: '/api/auth/logout',
       profile: '/api/auth/me',
+      profileDashboard: '/api/profile',
+      profileLeaderboard: '/api/profile/leaderboard?period=weekly',
       logoutAll: '/api/auth/logout-all',
       home: '/api/home',
       announcements: '/api/announcements',

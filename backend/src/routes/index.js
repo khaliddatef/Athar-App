@@ -12,11 +12,13 @@ const attendanceRoutes = require('./attendance.routes');
 const campaignRoutes = require('./campaign.routes');
 const communityRoutes = require('./community.routes');
 const homeRoutes = require('./home.routes');
+const profileRoutes = require('./profile.routes');
 const reportRoutes = require('./report.routes');
 const sosRequestRoutes = require('./sos-request.routes');
 const taskRoutes = require('./task.routes');
 
 const router = express.Router();
+const apiRelease = '2026-04-04-profile-dashboard-main';
 
 router.get('/health', async (req, res) => {
   const timestamp = new Date().toISOString();
@@ -28,6 +30,7 @@ router.get('/health', async (req, res) => {
       success: false,
       message: 'Sanad backend is running but database is unavailable',
       data: {
+        release: apiRelease,
         timestamp,
         database: 'disconnected',
         schema: 'unknown',
@@ -43,6 +46,7 @@ router.get('/health', async (req, res) => {
       success: true,
       message: 'Sanad backend and database schema are ready',
       data: {
+        release: apiRelease,
         timestamp,
         database: 'connected',
         schema: 'ready',
@@ -55,6 +59,7 @@ router.get('/health', async (req, res) => {
       success: false,
       message: 'Sanad backend is running but database schema is not ready',
       data: {
+        release: apiRelease,
         timestamp,
         database: 'connected',
         schema: schemaStatus,
@@ -66,6 +71,7 @@ router.get('/health', async (req, res) => {
 
 router.use('/auth', authRoutes);
 router.use('/home', homeRoutes);
+router.use('/profile', profileRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/attendance', attendanceRoutes);
 router.use('/campaigns', campaignRoutes);
