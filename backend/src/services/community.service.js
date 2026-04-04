@@ -233,9 +233,56 @@ async function createCommunityPostComment(postId, payload, currentVolunteerId) {
   };
 }
 
+async function deleteCommunityPost(postId, currentVolunteerId, options = {}) {
+  const parsedPostId = parsePositiveInteger(postId, 'معرف المنشور');
+  const post = await prisma.communityPost.findUnique({
+    where: {
+      id: parsedPostId,
+    },
+    select: {
+      id: true,
+      volunteerId: true,
+    },
+  });
+
+  if (!post) {
+    throw new AppError('المنشور غير موجود', 404);
+  }
+
+  const canModerate = options.canModerate === true;
+
+  if (!canModerate && post.volunteerId !== currentVolunteerId) {
+    throw new AppError('غير مسموح لك بحذف هذا المنشور', 403);
+  }
+
+  await prisma.$transaction([
+    prisma.communityPostLike.deleteMany({
+      where: {
+        postId: parsedPostId,
+      },
+    }),
+    prisma.communityPostComment.deleteMany({
+      where: {
+        postId: parsedPostId,
+      },
+    }),
+    prisma.communityPost.delete({
+      where: {
+        id: parsedPostId,
+      },
+    }),
+  ]);
+
+  return {
+    message: 'تم حذف المنشور بنجاح',
+    deletedPostId: parsedPostId,
+  };
+}
+
 module.exports = {
   createCommunityPost,
   createCommunityPostComment,
+  deleteCommunityPost,
   listCommunityFeed,
   listCommunityPostComments,
   toggleCommunityPostLike,

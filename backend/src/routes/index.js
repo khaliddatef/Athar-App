@@ -11,6 +11,7 @@ const announcementRoutes = require('./announcement.routes');
 const attendanceRoutes = require('./attendance.routes');
 const campaignRoutes = require('./campaign.routes');
 const communityRoutes = require('./community.routes');
+const demoAdminRoutes = require('./demo-admin.routes');
 const homeRoutes = require('./home.routes');
 const profileRoutes = require('./profile.routes');
 const reportRoutes = require('./report.routes');
@@ -18,7 +19,7 @@ const sosRequestRoutes = require('./sos-request.routes');
 const taskRoutes = require('./task.routes');
 
 const router = express.Router();
-const apiRelease = '2026-04-04-profile-dashboard-main';
+const apiRelease = '2026-04-04-demo-admin-seed';
 
 router.get('/health', async (req, res) => {
   const timestamp = new Date().toISOString();
@@ -79,5 +80,6 @@ router.use('/tasks', taskRoutes);
 router.use('/reports', reportRoutes);
 router.use('/sos-requests', sosRequestRoutes);
 router.use('/community', communityRoutes);
+router.use('/demo-admin', demoAdminRoutes);
 
 module.exports = router;
