@@ -10,6 +10,16 @@ const listAnnouncements = asyncHandler(async (req, res) => {
   });
 });
 
+const createAnnouncement = asyncHandler(async (req, res) => {
+  const result = await announcementService.createAnnouncement(req.body);
+
+  res.status(201).json({
+    success: true,
+    ...result,
+  });
+});
+
 module.exports = {
+  createAnnouncement,
   listAnnouncements,
 };

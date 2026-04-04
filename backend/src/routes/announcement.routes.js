@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(requireAuth);
 
 router.get('/', announcementController.listAnnouncements);
+router.post('/', announcementController.createAnnouncement);
 
 module.exports = router;

@@ -47,6 +47,7 @@ app.get('/', (req, res) => {
       logoutAll: '/api/auth/logout-all',
       home: '/api/home',
       announcements: '/api/announcements',
+      createAnnouncement: '/api/announcements',
       attendance: '/api/attendance',
       campaigns: '/api/campaigns',
       tasks: '/api/tasks',

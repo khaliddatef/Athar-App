@@ -1,6 +1,9 @@
 const prisma = require('../lib/prisma');
 const { serializePagination } = require('../utils/serializers');
-const { validateAnnouncementListQuery } = require('../validators/resource.validators');
+const {
+  validateAnnouncementCreatePayload,
+  validateAnnouncementListQuery,
+} = require('../validators/resource.validators');
 
 function serializeAnnouncement(announcement) {
   if (!announcement) {
@@ -56,7 +59,21 @@ async function listAnnouncements(query = {}) {
   };
 }
 
+async function createAnnouncement(payload = {}) {
+  const validatedPayload = validateAnnouncementCreatePayload(payload);
+
+  const announcement = await prisma.announcement.create({
+    data: validatedPayload,
+  });
+
+  return {
+    message: 'تم إنشاء الإعلان بنجاح',
+    announcement: serializeAnnouncement(announcement),
+  };
+}
+
 module.exports = {
+  createAnnouncement,
   findFeaturedAnnouncement,
   listAnnouncements,
   serializeAnnouncement,

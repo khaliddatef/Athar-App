@@ -795,6 +795,23 @@ function validateAnnouncementListQuery(query = {}) {
   };
 }
 
+function validateAnnouncementCreatePayload(payload = {}) {
+  return {
+    title: parseRequiredText(payload.title, 'عنوان الإعلان', {
+      minimumLength: 3,
+      maximumLength: 200,
+    }),
+    content: parseRequiredText(payload.content, 'محتوى الإعلان', {
+      minimumLength: 5,
+      maximumLength: 5000,
+    }),
+    image: parseOptionalText(payload.image, 'صورة الإعلان', {
+      maximumLength: 2048,
+    }),
+    isPinned: Boolean(payload.isPinned),
+  };
+}
+
 function validateCommunityPostCreatePayload(payload = {}) {
   return {
     content: parseRequiredText(payload.content, 'محتوى المنشور', {
@@ -829,6 +846,7 @@ module.exports = {
   hasOwn,
   parseCoordinatesQuery,
   parsePositiveInteger,
+  validateAnnouncementCreatePayload,
   validateAnnouncementListQuery,
   validateAttendanceCheckInPayload,
   validateAttendancePreviewQuery,

@@ -10,6 +10,7 @@
     "start": "node src/server.js",
     "check": "node --check src/server.js",
     "db:check": "node src/scripts/check-db.js",
+    "seed:demo": "node src/scripts/seed-demo-http.js",
     "prisma:generate": "prisma generate",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:push": "prisma db push",

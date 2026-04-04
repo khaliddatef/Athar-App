@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.use(requireAuth);
 
+router.get('/', communityController.listCommunityFeed);
 router.get('/feed', communityController.listCommunityFeed);
 router.post('/posts', communityController.createCommunityPost);
 router.post('/posts/:postId/like', communityController.toggleCommunityPostLike);
