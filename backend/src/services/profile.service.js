@@ -107,6 +107,8 @@ async function getProfileDashboard(volunteerId) {
     currentRank: leaderboard.currentUserRank,
   });
   const certificates = buildCertificates(overallMetrics, achievements, currentVolunteer);
+  const displayTotalHours = Number(currentVolunteer.totalHours) || overallMetrics.totalHours;
+  const displayPoints = Number(currentVolunteer.points) || overallMetrics.score;
 
   return {
     message: 'تم جلب بيانات الحساب بنجاح',
@@ -124,8 +126,8 @@ async function getProfileDashboard(volunteerId) {
         joinDate: currentVolunteer.joinDate?.toISOString?.() || null,
       },
       stats: {
-        totalHours: overallMetrics.totalHours,
-        points: overallMetrics.score,
+        totalHours: displayTotalHours,
+        points: displayPoints,
         campaignsCompleted: overallMetrics.completedCampaigns,
         badgesCount: achievements.filter((achievement) => achievement.unlocked).length,
         certificatesCount: certificates.length,
