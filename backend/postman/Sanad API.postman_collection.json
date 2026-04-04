@@ -41,6 +41,10 @@
     {
       "key": "postId",
       "value": "1"
+    },
+    {
+      "key": "leaderboardPeriod",
+      "value": "weekly"
     }
   ],
   "item": [
@@ -387,6 +391,37 @@
           }
         },
         {
+          "name": "Get Community Root Feed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Create Community Post",
           "request": {
             "method": "POST",
@@ -493,6 +528,29 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"content\": \"مجهود رائع، ربنا يبارك فيكم.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Community Post",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/community/posts/{{postId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "community",
+                "posts",
+                "{{postId}}"
+              ]
             }
           }
         }
@@ -1083,6 +1141,187 @@
                 "sos-requests",
                 "{{sosRequestId}}",
                 "status"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get Profile Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard Weekly",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/leaderboard?period=weekly",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "weekly"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard Monthly",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/leaderboard?period=monthly",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard All Time",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/leaderboard?period=all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "all"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Demo Admin",
+      "item": [
+        {
+          "name": "Get Demo Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/demo-admin/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo-admin",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Seed All Volunteers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/demo-admin/seed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo-admin",
+                "seed"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cleanup Demo Community Posts",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/demo-admin/community-posts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo-admin",
+                "community-posts"
               ]
             }
           }
