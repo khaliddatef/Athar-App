@@ -28,6 +28,10 @@ function serializeHomeTask(task) {
           id: task.campaign.id,
           title: task.campaign.title,
           coverImage: task.campaign.coverImage,
+          startDate: formatDateOnly(task.campaign.startDate),
+          endDate: formatDateOnly(task.campaign.endDate),
+          startTime: formatTimeOnly(task.campaign.startTime),
+          endTime: formatTimeOnly(task.campaign.endTime),
         }
       : null,
     assignment: assignment
@@ -88,6 +92,10 @@ async function getHomeSummary(volunteerId) {
             id: true,
             title: true,
             coverImage: true,
+            startDate: true,
+            endDate: true,
+            startTime: true,
+            endTime: true,
           },
         },
         volunteerTasks: {

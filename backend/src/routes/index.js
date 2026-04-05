@@ -19,7 +19,7 @@ const sosRequestRoutes = require('./sos-request.routes');
 const taskRoutes = require('./task.routes');
 
 const router = express.Router();
-const apiRelease = '2026-04-04-demo-admin-seed';
+const apiRelease = '2026-04-06-campaign-time-support';
 
 router.get('/health', async (req, res) => {
   const timestamp = new Date().toISOString();

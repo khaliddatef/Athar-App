@@ -26,6 +26,10 @@ function buildAttendanceTaskInclude(currentVolunteerId) {
       select: {
         id: true,
         title: true,
+        startDate: true,
+        endDate: true,
+        startTime: true,
+        endTime: true,
         attendanceRadiusMeters: true,
         attendancePoints: true,
       },
@@ -76,6 +80,10 @@ function serializeAttendancePreview(task, assignment, coordinates) {
     campaign: {
       id: task.campaign.id,
       title: task.campaign.title,
+      startDate: formatDateOnly(task.campaign.startDate),
+      endDate: formatDateOnly(task.campaign.endDate),
+      startTime: formatTimeOnly(task.campaign.startTime),
+      endTime: formatTimeOnly(task.campaign.endTime),
     },
     location,
     assignment: {

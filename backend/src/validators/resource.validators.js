@@ -447,9 +447,19 @@ function validateLocationReference(payload, options = {}) {
 function validateCampaignCreatePayload(payload = {}) {
   const startDate = parseDateOnly(payload.startDate, 'تاريخ بداية الحملة');
   const endDate = parseDateOnly(payload.endDate, 'تاريخ نهاية الحملة');
+  const startTime = parseTimeValue(payload.startTime, 'وقت بداية الحملة', {
+    required: false,
+  });
+  const endTime = parseTimeValue(payload.endTime, 'وقت نهاية الحملة', {
+    required: false,
+  });
 
   if (startDate > endDate) {
     throw new AppError('تاريخ بداية الحملة يجب أن يكون قبل أو مساويًا لتاريخ النهاية', 400);
+  }
+
+  if (startTime && endTime && startTime >= endTime) {
+    throw new AppError('وقت بداية الحملة يجب أن يكون قبل وقت النهاية', 400);
   }
 
   return {
@@ -462,6 +472,8 @@ function validateCampaignCreatePayload(payload = {}) {
     }),
     startDate,
     endDate,
+    startTime: startTime || null,
+    endTime: endTime || null,
     status:
       parseEnumValue(payload.status, 'حالة الحملة', CAMPAIGN_STATUSES, {
         required: false,
@@ -502,6 +514,18 @@ function validateCampaignUpdatePayload(payload = {}) {
 
   if (hasOwn(payload, 'endDate')) {
     data.endDate = parseDateOnly(payload.endDate, 'تاريخ نهاية الحملة');
+  }
+
+  if (hasOwn(payload, 'startTime')) {
+    data.startTime = parseNullableTimeField(payload, 'startTime', 'وقت بداية الحملة');
+  }
+
+  if (hasOwn(payload, 'endTime')) {
+    data.endTime = parseNullableTimeField(payload, 'endTime', 'وقت نهاية الحملة');
+  }
+
+  if (data.startTime && data.endTime && data.startTime >= data.endTime) {
+    throw new AppError('وقت بداية الحملة يجب أن يكون قبل وقت النهاية', 400);
   }
 
   if (hasOwn(payload, 'status')) {

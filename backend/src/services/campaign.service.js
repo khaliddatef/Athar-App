@@ -90,6 +90,8 @@ function serializeCampaign(campaign, options = {}) {
     coverImage: campaign.coverImage ?? null,
     startDate: formatDateOnly(campaign.startDate),
     endDate: formatDateOnly(campaign.endDate),
+    startTime: formatTimeOnly(campaign.startTime),
+    endTime: formatTimeOnly(campaign.endTime),
     status: campaign.status,
     location,
     createdBy: serializeVolunteerSummary(campaign.createdBy),
@@ -234,6 +236,8 @@ async function createCampaign(payload, volunteerId) {
         coverImage: validatedPayload.coverImage,
         startDate: validatedPayload.startDate,
         endDate: validatedPayload.endDate,
+        startTime: validatedPayload.startTime,
+        endTime: validatedPayload.endTime,
         status: validatedPayload.status,
         attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
         attendancePoints: validatedPayload.attendancePoints,
@@ -264,9 +268,17 @@ async function updateCampaign(campaignId, payload, volunteerId) {
 
   const nextStartDate = validatedPayload.startDate || existingCampaign.startDate;
   const nextEndDate = validatedPayload.endDate || existingCampaign.endDate;
+  const nextStartTime =
+    validatedPayload.startTime !== undefined ? validatedPayload.startTime : existingCampaign.startTime;
+  const nextEndTime =
+    validatedPayload.endTime !== undefined ? validatedPayload.endTime : existingCampaign.endTime;
 
   if (nextStartDate > nextEndDate) {
     throw new AppError('تاريخ بداية الحملة يجب أن يكون قبل أو مساويًا لتاريخ النهاية', 400);
+  }
+
+  if (nextStartTime && nextEndTime && nextStartTime >= nextEndTime) {
+    throw new AppError('وقت بداية الحملة يجب أن يكون قبل وقت النهاية', 400);
   }
 
   const campaign = await prisma.$transaction(async (transactionClient) => {
@@ -276,6 +288,8 @@ async function updateCampaign(campaignId, payload, volunteerId) {
       coverImage: validatedPayload.coverImage,
       startDate: validatedPayload.startDate,
       endDate: validatedPayload.endDate,
+      startTime: validatedPayload.startTime,
+      endTime: validatedPayload.endTime,
       status: validatedPayload.status,
       attendanceRadiusMeters: validatedPayload.attendanceRadiusMeters,
       attendancePoints: validatedPayload.attendancePoints,

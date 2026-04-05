@@ -606,7 +606,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"حملة توزيع مساعدات الجيزة\",\n  \"description\": \"حملة لتوزيع المساعدات الغذائية على الأسر الأكثر احتياجًا في الجيزة.\",\n  \"coverImage\": \"https://example.com/campaign-cover.jpg\",\n  \"startDate\": \"2026-03-25\",\n  \"endDate\": \"2026-03-27\",\n  \"status\": \"PUBLISHED\",\n  \"attendanceRadiusMeters\": 120,\n  \"attendancePoints\": 50,\n  \"reportPoints\": 50,\n  \"location\": {\n    \"name\": \"مخزن الدقي\",\n    \"latitude\": 30.0385,\n    \"longitude\": 31.2101,\n    \"city\": \"الجيزة\",\n    \"area\": \"الدقي\"\n  }\n}"
+              "raw": "{\n  \"title\": \"حملة توزيع مساعدات الجيزة\",\n  \"description\": \"حملة لتوزيع المساعدات الغذائية على الأسر الأكثر احتياجًا في الجيزة.\",\n  \"coverImage\": \"https://example.com/campaign-cover.jpg\",\n  \"startDate\": \"2026-04-06\",\n  \"endDate\": \"2026-04-08\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"status\": \"PUBLISHED\",\n  \"attendanceRadiusMeters\": 120,\n  \"attendancePoints\": 50,\n  \"reportPoints\": 50,\n  \"location\": {\n    \"name\": \"مخزن الدقي\",\n    \"latitude\": 30.0385,\n    \"longitude\": 31.2101,\n    \"city\": \"الجيزة\",\n    \"area\": \"الدقي\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/campaigns",
@@ -667,7 +667,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"ACTIVE\",\n  \"attendanceRadiusMeters\": 150\n}"
+              "raw": "{\n  \"startTime\": \"10:00\",\n  \"endTime\": \"18:00\",\n  \"status\": \"ACTIVE\",\n  \"attendanceRadiusMeters\": 150\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/campaigns/{{campaignId}}",

@@ -118,6 +118,8 @@ model Campaign {
   coverImage  String?           @map("cover_image")
   startDate   DateTime          @map("start_date")
   endDate     DateTime          @map("end_date")
+  startTime   DateTime?         @map("start_time") @db.Time(0)
+  endTime     DateTime?         @map("end_time") @db.Time(0)
   locationId  Int               @map("location_id")
   createdById Int               @map("created_by")
   status      CampaignStatus    @default(DRAFT)

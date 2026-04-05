@@ -42,6 +42,10 @@ const reportInclude = {
       title: true,
       status: true,
       createdById: true,
+      startDate: true,
+      endDate: true,
+      startTime: true,
+      endTime: true,
     },
   },
 };
@@ -77,6 +81,14 @@ function serializeReport(report) {
           title: report.campaign.title,
           status: report.campaign.status,
           createdById: report.campaign.createdById,
+          startDate: formatDateOnly(report.campaign.startDate),
+          endDate: formatDateOnly(report.campaign.endDate),
+          startTime: report.campaign.startTime
+            ? new Date(report.campaign.startTime).toISOString().slice(11, 19)
+            : null,
+          endTime: report.campaign.endTime
+            ? new Date(report.campaign.endTime).toISOString().slice(11, 19)
+            : null,
         }
       : null,
   };
@@ -206,6 +218,10 @@ async function createReport(payload, volunteerId) {
           title: true,
           status: true,
           createdById: true,
+          startDate: true,
+          endDate: true,
+          startTime: true,
+          endTime: true,
           reportPoints: true,
         },
       },
