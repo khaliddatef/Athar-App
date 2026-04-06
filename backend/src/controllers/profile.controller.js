@@ -19,7 +19,17 @@ const getLeaderboard = asyncHandler(async (req, res) => {
   });
 });
 
+const getProfileRecognition = asyncHandler(async (req, res) => {
+  const result = await profileService.getProfileRecognition(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    ...result,
+  });
+});
+
 module.exports = {
   getLeaderboard,
   getProfileDashboard,
+  getProfileRecognition,
 };

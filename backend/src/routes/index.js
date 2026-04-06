@@ -19,7 +19,7 @@ const sosRequestRoutes = require('./sos-request.routes');
 const taskRoutes = require('./task.routes');
 
 const router = express.Router();
-const apiRelease = '2026-04-06-campaign-time-support';
+const apiRelease = '2026-04-06-sos-recognition-v1';
 
 router.get('/health', async (req, res) => {
   const timestamp = new Date().toISOString();

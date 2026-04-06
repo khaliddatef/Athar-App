@@ -8,6 +8,8 @@ const router = express.Router();
 router.use(requireAuth);
 
 router.get('/', sosRequestController.listSosRequests);
+router.get('/active', sosRequestController.getActiveSosRequest);
+router.patch('/active/cancel', sosRequestController.cancelActiveSosRequest);
 router.post('/', sosRequestController.createSosRequest);
 router.get('/:requestId', sosRequestController.getSosRequestById);
 router.patch('/:requestId/status', sosRequestController.updateSosRequestStatus);

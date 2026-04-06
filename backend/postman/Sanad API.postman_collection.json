@@ -1064,6 +1064,28 @@
           }
         },
         {
+          "name": "Get Active SOS Request",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sos-requests/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sos-requests",
+                "active"
+              ]
+            }
+          }
+        },
+        {
           "name": "Create SOS Request",
           "request": {
             "method": "POST",
@@ -1088,6 +1110,29 @@
               ],
               "path": [
                 "sos-requests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Active SOS Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sos-requests/active/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sos-requests",
+                "active",
+                "cancel"
               ]
             }
           }
@@ -1167,6 +1212,28 @@
               ],
               "path": [
                 "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profile Recognition",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile/recognition",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profile",
+                "recognition"
               ]
             }
           }

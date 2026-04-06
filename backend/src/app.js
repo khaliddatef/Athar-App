@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
       logout: '/api/auth/logout',
       profile: '/api/auth/me',
       profileDashboard: '/api/profile',
+      profileRecognition: '/api/profile/recognition',
       profileLeaderboard: '/api/profile/leaderboard?period=weekly',
       logoutAll: '/api/auth/logout-all',
       home: '/api/home',
@@ -53,6 +54,8 @@ app.get('/', (req, res) => {
       tasks: '/api/tasks',
       reports: '/api/reports',
       sosRequests: '/api/sos-requests',
+      activeSosRequest: '/api/sos-requests/active',
+      cancelActiveSosRequest: '/api/sos-requests/active/cancel',
       community: '/api/community',
     },
   });

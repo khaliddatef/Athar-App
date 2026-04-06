@@ -362,6 +362,15 @@ function buildVolunteerTarget(index) {
   };
 }
 
+function buildDemoSosStatus(volunteer, index) {
+  if (volunteer?.nationalId === '30410018800673') {
+    return 'OPEN';
+  }
+
+  const statuses = ['RESPONDED', 'RESOLVED', 'CANCELLED', 'OPEN'];
+  return statuses[index % statuses.length];
+}
+
 function buildReportNotes(volunteer, task, sequence) {
   return `تقرير ديمو للمهمة ${sequence} بواسطة ${volunteer.fullName} يوضح اكتمال التنفيذ في ${task.location.name} ورفع المخرجات الميدانية بنجاح.`;
 }
@@ -551,26 +560,41 @@ async function ensureReport(dbClient, volunteerId, task, index) {
 }
 
 async function ensureSosRequest(dbClient, volunteerId, index) {
+  const volunteer = await dbClient.volunteer.findUnique({
+    where: {
+      id: volunteerId,
+    },
+    select: {
+      id: true,
+      nationalId: true,
+    },
+  });
   const existingRequest = await dbClient.sosRequest.findFirst({
     where: {
       volunteerId,
     },
   });
+  const coordinates = Object.values(DEMO_COORDINATES)[index % Object.values(DEMO_COORDINATES).length];
+  const status = buildDemoSosStatus(volunteer, index);
+  const data = {
+    volunteerId,
+    latitude: coordinates.latitude,
+    longitude: coordinates.longitude,
+    status,
+    resolvedAt: ['RESOLVED', 'CANCELLED'].includes(status) ? new Date() : null,
+  };
 
   if (existingRequest) {
-    return existingRequest;
+    return dbClient.sosRequest.update({
+      where: {
+        id: existingRequest.id,
+      },
+      data,
+    });
   }
 
-  const coordinates = Object.values(DEMO_COORDINATES)[index % Object.values(DEMO_COORDINATES).length];
-
   return dbClient.sosRequest.create({
-    data: {
-      volunteerId,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
-      status: index % 3 === 0 ? 'OPEN' : 'RESOLVED',
-      resolvedAt: index % 3 === 0 ? null : new Date(),
-    },
+    data,
   });
 }
 

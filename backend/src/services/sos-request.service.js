@@ -11,6 +11,8 @@ const {
   validateSosRequestStatusPayload,
 } = require('../validators/resource.validators');
 
+const ACTIVE_SOS_STATUSES = ['OPEN', 'RESPONDED'];
+
 const volunteerSummarySelect = {
   id: true,
   fullName: true,
@@ -30,17 +32,106 @@ function decimalToNumber(value) {
   return Number(value);
 }
 
+function buildSosUiState(status) {
+  switch (status) {
+    case 'OPEN':
+      return {
+        screenTitle: 'جاري إرسال طلب الطوارئ...',
+        screenSubtitle: 'يتم مشاركة موقعك الآن',
+        helperText: 'لا تغلق التطبيق',
+        tone: 'danger',
+        canCancel: true,
+        keepAppOpen: true,
+        pollIntervalSeconds: 5,
+        estimatedResponseMinutes: 2,
+      };
+    case 'RESPONDED':
+      return {
+        screenTitle: 'تم استلام طلب الطوارئ',
+        screenSubtitle: 'فريق سند على علم بموقعك الآن',
+        helperText: 'ابقَ في مكان آمن حتى يتم التعامل مع الحالة',
+        tone: 'danger',
+        canCancel: true,
+        keepAppOpen: true,
+        pollIntervalSeconds: 5,
+        estimatedResponseMinutes: 1,
+      };
+    case 'RESOLVED':
+      return {
+        screenTitle: 'تم إنهاء طلب الطوارئ',
+        screenSubtitle: 'يمكنك العودة للتطبيق بشكل طبيعي',
+        helperText: 'تم إغلاق الحالة بنجاح',
+        tone: 'success',
+        canCancel: false,
+        keepAppOpen: false,
+        pollIntervalSeconds: null,
+        estimatedResponseMinutes: 0,
+      };
+    default:
+      return {
+        screenTitle: 'تم إلغاء طلب الطوارئ',
+        screenSubtitle: 'لن يتم متابعة هذا الطلب',
+        helperText: 'يمكنك إرسال طلب جديد إذا احتجت المساعدة لاحقًا',
+        tone: 'neutral',
+        canCancel: false,
+        keepAppOpen: false,
+        pollIntervalSeconds: null,
+        estimatedResponseMinutes: 0,
+      };
+  }
+}
+
+function buildSosStatusLabel(status) {
+  switch (status) {
+    case 'OPEN':
+      return 'قيد الإرسال';
+    case 'RESPONDED':
+      return 'تمت الاستجابة';
+    case 'RESOLVED':
+      return 'تمت المعالجة';
+    case 'CANCELLED':
+      return 'تم الإلغاء';
+    default:
+      return status;
+  }
+}
+
 function serializeSosRequest(sosRequest) {
+  const latitude = decimalToNumber(sosRequest.latitude);
+  const longitude = decimalToNumber(sosRequest.longitude);
+
   return {
     id: sosRequest.id,
     volunteerId: sosRequest.volunteerId,
-    latitude: decimalToNumber(sosRequest.latitude),
-    longitude: decimalToNumber(sosRequest.longitude),
+    latitude,
+    longitude,
+    location: {
+      latitude,
+      longitude,
+    },
     status: sosRequest.status,
+    statusLabel: buildSosStatusLabel(sosRequest.status),
+    isActive: ACTIVE_SOS_STATUSES.includes(sosRequest.status),
     createdAt: sosRequest.createdAt?.toISOString() ?? null,
     resolvedAt: sosRequest.resolvedAt?.toISOString() ?? null,
     volunteer: serializeVolunteerSummary(sosRequest.volunteer),
+    uiState: buildSosUiState(sosRequest.status),
   };
+}
+
+async function findActiveSosRequest(volunteerId) {
+  return prisma.sosRequest.findFirst({
+    where: {
+      volunteerId,
+      status: {
+        in: ACTIVE_SOS_STATUSES,
+      },
+    },
+    include: sosRequestInclude,
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 }
 
 async function getSosRequestOrThrow(requestId) {
@@ -104,8 +195,43 @@ async function getSosRequestById(requestId) {
   };
 }
 
+async function getActiveSosRequest(volunteerId) {
+  const [activeRequest, historyCount] = await Promise.all([
+    findActiveSosRequest(volunteerId),
+    prisma.sosRequest.count({
+      where: {
+        volunteerId,
+        status: {
+          in: ['RESOLVED', 'CANCELLED'],
+        },
+      },
+    }),
+  ]);
+
+  return {
+    message: activeRequest
+      ? 'تم جلب طلب الطوارئ النشط بنجاح'
+      : 'لا يوجد طلب طوارئ نشط حاليًا',
+    activeRequest: activeRequest ? serializeSosRequest(activeRequest) : null,
+    summary: {
+      hasActiveRequest: Boolean(activeRequest),
+      historyCount,
+    },
+  };
+}
+
 async function createSosRequest(payload, volunteerId) {
   const validatedPayload = validateSosRequestCreatePayload(payload);
+  const existingActiveRequest = await findActiveSosRequest(volunteerId);
+
+  if (existingActiveRequest) {
+    return {
+      statusCode: 200,
+      message: 'يوجد طلب طوارئ نشط بالفعل لهذا الحساب',
+      request: serializeSosRequest(existingActiveRequest),
+      created: false,
+    };
+  }
 
   const sosRequest = await prisma.sosRequest.create({
     data: {
@@ -117,7 +243,33 @@ async function createSosRequest(payload, volunteerId) {
   });
 
   return {
+    statusCode: 201,
     message: 'تم إنشاء طلب الاستغاثة بنجاح',
+    request: serializeSosRequest(sosRequest),
+    created: true,
+  };
+}
+
+async function cancelActiveSosRequest(volunteerId) {
+  const activeRequest = await findActiveSosRequest(volunteerId);
+
+  if (!activeRequest) {
+    throw new AppError('لا يوجد طلب طوارئ نشط لإلغائه', 404);
+  }
+
+  const sosRequest = await prisma.sosRequest.update({
+    where: {
+      id: activeRequest.id,
+    },
+    data: {
+      status: 'CANCELLED',
+      resolvedAt: new Date(),
+    },
+    include: sosRequestInclude,
+  });
+
+  return {
+    message: 'تم إلغاء طلب الطوارئ النشط بنجاح',
     request: serializeSosRequest(sosRequest),
   };
 }
@@ -148,7 +300,7 @@ async function updateSosRequestStatus(requestId, payload, volunteerId) {
     data: {
       status: validatedPayload.status,
       resolvedAt:
-        validatedPayload.status === 'RESOLVED' ? new Date() : null,
+        ['RESOLVED', 'CANCELLED'].includes(validatedPayload.status) ? new Date() : null,
     },
     include: sosRequestInclude,
   });
@@ -160,7 +312,9 @@ async function updateSosRequestStatus(requestId, payload, volunteerId) {
 }
 
 module.exports = {
+  cancelActiveSosRequest,
   createSosRequest,
+  getActiveSosRequest,
   getSosRequestById,
   listSosRequests,
   updateSosRequestStatus,

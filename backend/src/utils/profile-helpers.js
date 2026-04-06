@@ -4,6 +4,57 @@ const NEWS_IMAGE_URLS = [
   'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=80',
 ];
 
+const HOURS_RECOGNITION_LEVELS = [
+  {
+    key: 'new_joiner',
+    title: 'متطوع جديد',
+    minHours: 0,
+    maxHours: 19,
+    color: '#94A3B8',
+    description: 'بداية الرحلة التطوعية داخل سند.',
+  },
+  {
+    key: 'engaged_member',
+    title: 'عضو متفاعل',
+    minHours: 20,
+    maxHours: 59,
+    color: '#2563EB',
+    description: 'مشاركة منتظمة وبداية حضور فعلي في الأنشطة.',
+  },
+  {
+    key: 'active_volunteer',
+    title: 'متطوع نشط',
+    minHours: 60,
+    maxHours: 149,
+    color: '#1F8F5A',
+    description: 'رصيد ساعات قوي ومشاركة ميدانية واضحة.',
+  },
+  {
+    key: 'field_lead',
+    title: 'قائد ميداني',
+    minHours: 150,
+    maxHours: 249,
+    color: '#F59E0B',
+    description: 'مساهمة كبيرة ومستمرة في إدارة وتنفيذ المهام.',
+  },
+  {
+    key: 'sanad_ambassador',
+    title: 'سفير سند',
+    minHours: 250,
+    maxHours: 399,
+    color: '#7C3AED',
+    description: 'أثر تطوعي ممتد وحضور قوي داخل المجتمع.',
+  },
+  {
+    key: 'giving_legend',
+    title: 'أسطورة العطاء',
+    minHours: 400,
+    maxHours: null,
+    color: '#DC2626',
+    description: 'أعلى لقب ساعات داخل المنصة.',
+  },
+];
+
 function toDate(value) {
   if (!value) {
     return null;
@@ -64,6 +115,64 @@ function buildStatusLabel(status) {
 function buildMemberSinceLabel(joinDate) {
   const formattedValue = formatMonthYearArabic(joinDate);
   return formattedValue ? `عضو منذ ${formattedValue}` : 'عضو جديد';
+}
+
+function buildHoursRecognition(totalHours = 0) {
+  const normalizedHours = Math.max(0, Number(totalHours) || 0);
+  const currentLevel =
+    HOURS_RECOGNITION_LEVELS.find((level) => {
+      if (level.maxHours === null) {
+        return normalizedHours >= level.minHours;
+      }
+
+      return normalizedHours >= level.minHours && normalizedHours <= level.maxHours;
+    }) || HOURS_RECOGNITION_LEVELS[0];
+  const currentIndex = HOURS_RECOGNITION_LEVELS.findIndex(
+    (level) => level.key === currentLevel.key,
+  );
+  const nextLevel =
+    currentIndex >= 0 && currentIndex < HOURS_RECOGNITION_LEVELS.length - 1
+      ? HOURS_RECOGNITION_LEVELS[currentIndex + 1]
+      : null;
+  const currentLevelRange = Math.max(
+    1,
+    (currentLevel.maxHours ?? currentLevel.minHours) - currentLevel.minHours + 1,
+  );
+  const progressPercent = nextLevel
+    ? Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            ((normalizedHours - currentLevel.minHours) / currentLevelRange) * 100,
+          ),
+        ),
+      )
+    : 100;
+
+  return {
+    basedOn: 'totalHours',
+    totalHours: normalizedHours,
+    currentTitle: currentLevel.title,
+    currentLevelKey: currentLevel.key,
+    color: currentLevel.color,
+    description: currentLevel.description,
+    nextTitle: nextLevel?.title || null,
+    nextLevelKey: nextLevel?.key || null,
+    nextMinHours: nextLevel?.minHours || null,
+    hoursToNextLevel: nextLevel ? Math.max(0, nextLevel.minHours - normalizedHours) : 0,
+    progressPercent,
+    levels: HOURS_RECOGNITION_LEVELS.map((level) => ({
+      key: level.key,
+      title: level.title,
+      color: level.color,
+      minHours: level.minHours,
+      maxHours: level.maxHours,
+      description: level.description,
+      isCurrent: level.key === currentLevel.key,
+      isUnlocked: normalizedHours >= level.minHours,
+    })),
+  };
 }
 
 function getPeriodStart(period, now = new Date()) {
@@ -401,6 +510,7 @@ module.exports = {
   buildAvatarUrl,
   buildCertificates,
   buildFallbackNewsItems,
+  buildHoursRecognition,
   buildLeaderboardRows,
   buildMemberSinceLabel,
   buildStatusLabel,

@@ -4,6 +4,7 @@ const {
   buildAchievementCatalog,
   buildAvatarUrl,
   buildCertificates,
+  buildHoursRecognition,
   buildLeaderboardRows,
   buildMemberSinceLabel,
   buildStatusLabel,
@@ -109,6 +110,7 @@ async function getProfileDashboard(volunteerId) {
   const certificates = buildCertificates(overallMetrics, achievements, currentVolunteer);
   const displayTotalHours = Number(currentVolunteer.totalHours) || overallMetrics.totalHours;
   const displayPoints = Number(currentVolunteer.points) || overallMetrics.score;
+  const recognition = buildHoursRecognition(displayTotalHours);
 
   return {
     message: 'تم جلب بيانات الحساب بنجاح',
@@ -124,6 +126,7 @@ async function getProfileDashboard(volunteerId) {
         statusLabel: `${buildStatusLabel(currentVolunteer.status)} 🌟`,
         memberSinceLabel: buildMemberSinceLabel(currentVolunteer.joinDate),
         joinDate: currentVolunteer.joinDate?.toISOString?.() || null,
+        recognitionTitle: recognition.currentTitle,
       },
       stats: {
         totalHours: displayTotalHours,
@@ -132,6 +135,7 @@ async function getProfileDashboard(volunteerId) {
         badgesCount: achievements.filter((achievement) => achievement.unlocked).length,
         certificatesCount: certificates.length,
       },
+      recognition,
       leaderboard: {
         period: 'weekly',
         ...leaderboard,
@@ -145,6 +149,40 @@ async function getProfileDashboard(volunteerId) {
         count: certificates.length,
         items: certificates,
       },
+    },
+  };
+}
+
+async function getProfileRecognition(volunteerId) {
+  const volunteer = await prisma.volunteer.findUnique({
+    where: {
+      id: volunteerId,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      nationalId: true,
+      totalHours: true,
+      joinDate: true,
+      createdAt: true,
+    },
+  });
+
+  if (!volunteer) {
+    throw new AppError('المستخدم غير موجود', 404);
+  }
+
+  const recognition = buildHoursRecognition(volunteer.totalHours);
+
+  return {
+    message: 'تم جلب لقب المتطوع بنجاح',
+    recognition: {
+      volunteer: {
+        id: volunteer.id,
+        fullName: volunteer.fullName,
+        nationalId: volunteer.nationalId,
+      },
+      ...recognition,
     },
   };
 }
@@ -175,4 +213,5 @@ async function getLeaderboard(volunteerId, periodValue) {
 module.exports = {
   getLeaderboard,
   getProfileDashboard,
+  getProfileRecognition,
 };

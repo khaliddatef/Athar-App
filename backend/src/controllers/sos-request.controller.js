@@ -10,6 +10,15 @@ const listSosRequests = asyncHandler(async (req, res) => {
   });
 });
 
+const getActiveSosRequest = asyncHandler(async (req, res) => {
+  const result = await sosRequestService.getActiveSosRequest(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    ...result,
+  });
+});
+
 const getSosRequestById = asyncHandler(async (req, res) => {
   const result = await sosRequestService.getSosRequestById(req.params.requestId);
 
@@ -21,8 +30,18 @@ const getSosRequestById = asyncHandler(async (req, res) => {
 
 const createSosRequest = asyncHandler(async (req, res) => {
   const result = await sosRequestService.createSosRequest(req.body, req.user.id);
+  const { statusCode, ...response } = result;
 
-  res.status(201).json({
+  res.status(statusCode || 201).json({
+    success: true,
+    ...response,
+  });
+});
+
+const cancelActiveSosRequest = asyncHandler(async (req, res) => {
+  const result = await sosRequestService.cancelActiveSosRequest(req.user.id);
+
+  res.status(200).json({
     success: true,
     ...result,
   });
@@ -42,7 +61,9 @@ const updateSosRequestStatus = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  cancelActiveSosRequest,
   createSosRequest,
+  getActiveSosRequest,
   getSosRequestById,
   listSosRequests,
   updateSosRequestStatus,
